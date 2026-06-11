@@ -1,0 +1,14 @@
+# Ignoruj surowe dane ze względu na RODO/GDPR i prywatność klientów
+*.xlsx
+*.xls
+
+# Ignoruj środowiska wirtualne Pythona
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Ignoruj pliki systemowe i IDE
+.DS_Store
+.vscode/
+.idea/
