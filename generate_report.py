@@ -948,7 +948,7 @@ try:
         print("\nWykryto repozytorium Git. Publikuję raport na GitHub Pages...")
         
         # 1. Dodaj pliki do indeksu
-        subprocess.run(['git', 'add', 'index.html', 'Raport_Labirynt_Euphire.html', '.gitignore', 'generate_report.py', 'Specyfikacja_Analityczna_Labirynt.md', 'README.md'], check=True)
+        subprocess.run(['git', 'add', 'index.html', 'Raport_Labirynt_Euphire.html', '.gitignore', 'generate_report.py', 'Specyfikacja_Analityczna_Labirynt.md', 'README.md', 'Specyfikacja_Wdrozeniowa_Agenta.md'], check=True)
         
         # 2. Wykonaj commit (jeśli są zmiany)
         commit_check = subprocess.run(['git', 'status', '--porcelain'], capture_output=True, text=True)
