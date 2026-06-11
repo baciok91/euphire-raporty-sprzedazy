@@ -4,22 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EUPHIRE | Analiza Labirynt Rozmów</title>
-    <!-- Google Fonts z EUPHIRE Design System -->
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Google Fonts z EUPHIRE Design System oraz nowoczesny Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Montserrat:wght@500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-bg: #FAFAFA; /* Frost White */
-            --header-bg: #004D54; /* Evergreen */
-            --text-main: #1F1F1F; /* Obsidian Black */
+            --primary-bg: #F3F7F7; /* Frost White z lekkim odcieniem teal */
+            --header-bg: linear-gradient(135deg, #004D54 0%, #002E32 100%); /* Evergreen do Nocturne */
+            --text-main: #1D2A2B; /* Obsidian Black z odcieniem ciemnego teal */
             --text-header-light: #FAFAFA;
             --accent: #FCAE2F; /* Ember */
             --accent-subtle: #B2CACC; /* Mist */
-            --gradient-dark: #002E32; /* Nocturne */
+            --card-shadow: 0 10px 30px rgba(0, 77, 84, 0.05);
+            --card-hover-shadow: 0 20px 40px rgba(0, 77, 84, 0.12);
             
             --font-headings: 'Montserrat', sans-serif;
-            --font-paragraphs: 'Merriweather', serif;
-            --font-data: 'Roboto Mono', monospace;
+            --font-paragraphs: 'Plus Jakarta Sans', sans-serif;
+            --font-data: 'Plus Jakarta Sans', sans-serif;
         }
         
         * {
@@ -32,48 +33,61 @@
             background-color: var(--primary-bg);
             color: var(--text-main);
             font-family: var(--font-paragraphs);
-            line-height: 1.5;
+            line-height: 1.6;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
         
         /* Typography System */
         h1, h2, h3, h4 {
             font-family: var(--font-headings);
-            font-weight: 600;
+            font-weight: 700;
         }
         
         .overline {
-            font-family: var(--font-data);
+            font-family: 'Roboto Mono', monospace;
             line-height: 1.5;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            opacity: 0.8;
         }
         
         .data-value {
             font-family: var(--font-data);
-            font-weight: 500;
+            font-weight: 800;
+            letter-spacing: -0.03em;
         }
         
         .italic-highlight {
             font-style: italic;
+            opacity: 0.9;
         }
         
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem 3rem 2rem;
+            padding: 0 2rem 4rem 2rem;
         }
         
         /* HEADER SECTION */
         .top-header {
-            background-color: var(--header-bg);
-            padding: 2rem 0;
-            margin-bottom: 2.5rem;
+            background: var(--header-bg);
+            padding: 2.5rem 0;
+            margin-bottom: 2rem;
             color: var(--text-header-light);
             border-bottom: 5px solid var(--accent);
             position: relative;
-            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.05"/></svg>');
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 46, 50, 0.15);
+        }
+        
+        .top-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.035"/></svg>');
+            pointer-events: none;
         }
         
         .header-content {
@@ -83,36 +97,48 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            z-index: 1;
         }
         
         .logo-container img {
-            height: 48px;
+            height: 52px;
             display: block;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
         
         .header-text h1 {
-            font-size: 2.2rem;
-            margin-top: 0.5rem;
+            font-size: 2.5rem;
+            margin-top: 0.25rem;
+            letter-spacing: -0.02em;
+            font-weight: 800;
         }
         
         .header-text .overline {
             color: var(--accent);
         }
         
-        /* FILTER CONTROLS */
+        /* FILTER CONTROLS (Floating Glassmorphism Card) */
         .filter-container {
-            background: #ffffff;
-            border: 1px solid var(--accent-subtle);
-            border-radius: 8px;
-            padding: 1.2rem 1.8rem;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(178, 202, 204, 0.4);
+            border-radius: 12px;
+            padding: 1.25rem 2rem;
             margin-bottom: 2.5rem;
             display: flex;
             flex-wrap: wrap;
             gap: 1.5rem;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 10px rgba(0, 77, 84, 0.03);
-            border-top: 4px solid var(--header-bg);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .filter-container:hover {
+            border-color: rgba(0, 77, 84, 0.3);
+            box-shadow: 0 12px 35px rgba(0, 77, 84, 0.08);
         }
         
         .filter-group {
@@ -124,25 +150,29 @@
         
         .filter-label {
             font-family: var(--font-headings);
-            font-weight: 600;
-            color: var(--header-bg);
-            font-size: 0.95rem;
+            font-weight: 700;
+            color: #004D54;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
         
         .filter-input {
-            font-family: var(--font-data);
-            border: 1px solid var(--accent-subtle);
-            border-radius: 4px;
-            padding: 0.4rem 0.8rem;
+            font-family: var(--font-paragraphs);
+            font-weight: 500;
+            border: 1.5px solid rgba(178, 202, 204, 0.6);
+            border-radius: 6px;
+            padding: 0.5rem 0.9rem;
             color: var(--text-main);
             outline: none;
             font-size: 0.9rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #ffffff;
+            transition: all 0.2s ease-in-out;
         }
         
         .filter-input:focus {
-            border-color: var(--header-bg);
-            box-shadow: 0 0 0 3px rgba(0, 77, 84, 0.1);
+            border-color: #004D54;
+            box-shadow: 0 0 0 4px rgba(0, 77, 84, 0.1);
         }
         
         .btn-group {
@@ -152,22 +182,29 @@
         }
         
         .filter-btn {
-            background: #ffffff;
-            border: 1px solid var(--accent-subtle);
-            color: var(--header-bg);
+            background: rgba(178, 202, 204, 0.15);
+            border: 1.5px solid transparent;
+            color: #004D54;
             font-family: var(--font-headings);
-            font-weight: 500;
-            font-size: 0.85rem;
-            padding: 0.5rem 1.2rem;
-            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 0.55rem 1.25rem;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .filter-btn:hover, .filter-btn.active {
-            background: var(--header-bg);
+        .filter-btn:hover {
+            background: rgba(0, 77, 84, 0.1);
+            color: #004D54;
+        }
+        
+        .filter-btn.active {
+            background: #004D54;
             color: var(--text-header-light);
-            border-color: var(--header-bg);
+            box-shadow: 0 4px 12px rgba(0, 77, 84, 0.2);
         }
         
         /* SUMMARY GRID */
@@ -180,33 +217,56 @@
         
         .card {
             background-color: #ffffff;
-            border-radius: 8px;
-            padding: 1.5rem;
-            border: 1px solid var(--accent-subtle);
-            box-shadow: 0 4px 6px rgba(0, 77, 84, 0.05);
-            border-top: 4px solid var(--header-bg);
+            border-radius: 12px;
+            padding: 1.75rem;
+            border: 1px solid rgba(178, 202, 204, 0.3);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: #004D54;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-hover-shadow);
+            border-color: rgba(0, 77, 84, 0.2);
         }
         
         .card h3 {
-            color: var(--header-bg);
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
+            color: #004D54;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
         }
         
         .card .value {
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             color: var(--text-main);
             margin-bottom: 0.5rem;
+            line-height: 1.1;
         }
         
         .card .value.accent {
-            color: var(--accent);
-            text-shadow: 0px 1px 2px rgba(0,0,0,0.1);
+            color: #004D54;
+            background: linear-gradient(120deg, #004D54 0%, #002E32 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         .card p {
-            font-size: 0.95rem;
-            color: #555;
+            font-size: 0.85rem;
+            color: #607274;
+            font-weight: 500;
         }
         
         /* VARIANT ANALYSIS */
@@ -220,29 +280,39 @@
         .variant-card {
             flex: 1;
             min-width: 300px;
-            background: var(--header-bg);
-            color: var(--text-header-light);
-            border-radius: 8px;
-            padding: 1.5rem;
-            border-bottom: 4px solid var(--accent);
+            background: #ffffff;
+            color: var(--text-main);
+            border-radius: 12px;
+            padding: 1.75rem;
+            border: 1px solid rgba(178, 202, 204, 0.3);
+            box-shadow: var(--card-shadow);
             position: relative;
             overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .variant-card::after {
+        .variant-card::before {
             content: '';
             position: absolute;
-            top: 0; right: 0; bottom: 0; left: 0;
-            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.04"/></svg>');
-            pointer-events: none;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #004D54 0%, #FCAE2F 100%);
+        }
+        
+        .variant-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-hover-shadow);
+            border-color: rgba(0, 77, 84, 0.2);
         }
         
         .variant-card h4 {
-            color: var(--accent);
-            font-family: var(--font-data);
-            font-size: 1rem;
-            margin-bottom: 1rem;
+            color: #004D54;
+            font-family: var(--font-headings);
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
             text-transform: uppercase;
+            letter-spacing: 0.03em;
+            font-weight: 700;
         }
         
         .variant-stats {
@@ -252,24 +322,38 @@
             margin-top: 1rem;
         }
         
-        .variant-rev { font-size: 1.8rem; font-family: var(--font-data); font-weight: 600; }
-        .variant-count { font-size: 1.1rem; opacity: 0.8; font-family: var(--font-data); }
+        .variant-rev { 
+            font-size: 1.8rem; 
+            font-family: var(--font-data); 
+            font-weight: 800; 
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+        
+        .variant-count { 
+            font-size: 1rem; 
+            color: #607274; 
+            font-family: var(--font-data);
+            font-weight: 600;
+        }
 
         /* CHARTS AREA */
         .section-title {
             margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-            color: var(--header-bg);
+            font-size: 1.5rem;
+            color: #004D54;
             display: flex;
             align-items: center;
             gap: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         .section-title::after {
             content: "";
             flex: 1;
-            height: 1px;
-            background-color: var(--accent-subtle);
+            height: 2px;
+            background: linear-gradient(90deg, rgba(178, 202, 204, 0.5) 0%, rgba(178, 202, 204, 0.05) 100%);
         }
         
         .charts-grid {
@@ -285,27 +369,39 @@
 
         .chart-container {
             background-color: #ffffff;
-            border-radius: 8px;
-            padding: 1.5rem;
-            border: 1px solid var(--accent-subtle);
-            height: 400px;
+            border-radius: 12px;
+            padding: 1.75rem;
+            border: 1px solid rgba(178, 202, 204, 0.3);
+            box-shadow: var(--card-shadow);
+            height: 420px;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            box-shadow: 0 12px 35px rgba(0, 77, 84, 0.06);
         }
         
         /* INSIGHTS */
         .insights {
             background-color: #ffffff;
-            border-radius: 8px;
-            padding: 2.5rem;
-            border: 1px solid var(--accent-subtle);
-            border-left: 6px solid var(--header-bg);
+            border-radius: 12px;
+            padding: 2.25rem;
+            border: 1px solid rgba(178, 202, 204, 0.3);
+            border-left: 6px solid #004D54;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .insights:hover {
+            box-shadow: var(--card-hover-shadow);
         }
         
         .insights h2 {
-            color: var(--header-bg);
+            color: #004D54;
             margin-bottom: 1.5rem;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
+            letter-spacing: -0.01em;
         }
         
         .insights ul {
@@ -314,28 +410,38 @@
         }
         
         .insights li {
-            margin-bottom: 1rem;
-            padding-left: 1.5rem;
+            margin-bottom: 1.25rem;
+            padding-left: 1.75rem;
             position: relative;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
+            color: #2F3E40;
         }
         
         .insights li::before {
-            content: "•";
-            color: var(--accent);
-            font-size: 2rem;
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
             position: absolute;
-            left: 0;
-            top: -0.5rem;
+            left: 0.25rem;
+            top: 0.65rem;
         }
         
         .badge {
-            background: var(--header-bg);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
+            background: rgba(0, 77, 84, 0.08);
+            color: #004D54;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .badge-rev {
             font-family: var(--font-data);
-            font-size: 0.9rem;
+            font-weight: 700;
+            color: #004D54;
         }
     </style>
 </head>
@@ -345,7 +451,7 @@
             <div class="header-text">
                 <span class="overline">Raport Analityczny / Produkt</span>
                 <h1>Sprzedaż: Labirynt Rozmów</h1>
-                <span class="overline">Wygenerowano: 11.06.2026 14:45</span>
+                <span class="overline">Wygenerowano: 11.06.2026 14:48</span>
             </div>
             <div class="logo-container">
                 <!-- EUPHIRE Primary Logo (Yellow Ember on Evergreen context) -->
@@ -423,13 +529,13 @@
         <h2 class="section-title">Dynamika Sprzedaży</h2>
         <div class="charts-grid">
             <div class="chart-container">
-                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: var(--header-bg);">Trendy Dzienne</h3>
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1.25rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Trendy Dzienne</h3>
                 <div style="position: relative; height: 320px; width: 100%;">
                     <canvas id="dailyChart"></canvas>
                 </div>
             </div>
             <div class="chart-container">
-                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: var(--header-bg);">Przychód Tygodniowy</h3>
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1.25rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Przychód Tygodniowy</h3>
                 <div style="position: relative; height: 320px; width: 100%;">
                     <canvas id="weeklyChart"></canvas>
                 </div>
@@ -440,8 +546,8 @@
             <h2>Wnioski Zgodne z <span class="italic-highlight">Factami, Metodą, Praktyką</span></h2>
             <p>Zautomatyzowana analiza odnotowała następujące momenty skrajne z podzbioru danych dotyczących wyłącznie produktu "Labirynt Rozmów":</p>
             <ul>
-                <li><strong>Najsilniejszy dzień pod względem przychodów:</strong> Dzień <span class="badge" id="best-day-badge">-</span> z wynikiem <span class="data-value" id="best-day-rev">0,00 zł</span>.</li>
-                <li><strong>Najsilniejszy tydzień łączny:</strong> <span class="badge" id="best-week-badge">-</span> generujący przychód w wysokości <span class="data-value" id="best-week-rev">0,00 zł</span>.</li>
+                <li><strong>Najsilniejszy dzień pod względem przychodów:</strong> Dzień <span class="badge" id="best-day-badge">-</span> z wynikiem <span class="badge-rev" id="best-day-rev">0,00 zł</span>.</li>
+                <li><strong>Najsilniejszy tydzień łączny:</strong> <span class="badge" id="best-week-badge">-</span> generujący przychód w wysokości <span class="badge-rev" id="best-week-rev">0,00 zł</span>.</li>
                 <li>Zestawienie <span class="italic-highlight">wariantów pudełkowych oraz online</span> wskazuje, jak użytkownicy wybierają formę gry w skali danego ujęcia czasu. Pamiętaj, aby śledzić spadek / przyrost zainteresowania pakietami premium w okresach przedświątecznych lub po kampaniach mailingowych marki Euphire.</li>
             </ul>
         </div>
@@ -462,13 +568,13 @@
             return `${tempDate.getFullYear()}-W${weekStr}`;
         }
 
-        Chart.defaults.font.family = "'Roboto Mono', monospace";
-        Chart.defaults.color = "#1F1F1F";
+        Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+        Chart.defaults.color = "#1D2A2B";
 
         // Daily Chart Render (Line with gradient - Evergreen to Mist)
         const ctxDaily = document.getElementById('dailyChart').getContext('2d');
         const gradientDaily = ctxDaily.createLinearGradient(0, 0, 0, 320);
-        gradientDaily.addColorStop(0, 'rgba(0, 77, 84, 0.4)'); // Evergreen 
+        gradientDaily.addColorStop(0, 'rgba(0, 77, 84, 0.45)'); // Evergreen 
         gradientDaily.addColorStop(1, 'rgba(178, 202, 204, 0.05)'); // Mist
         
         const dailyChartInstance = new Chart(ctxDaily, {
@@ -495,7 +601,7 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#1F1F1F',
+                        backgroundColor: '#1D2A2B',
                         titleColor: '#FCAE2F',
                         bodyColor: '#FAFAFA',
                         padding: 12,
@@ -507,7 +613,7 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        grid: { color: 'rgba(0, 77, 84, 0.04)' },
                         ticks: { callback: function(v) { return v.toLocaleString('pl-PL'); } }
                     },
                     x: { grid: { display: false } }
@@ -547,7 +653,7 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        grid: { color: 'rgba(0, 77, 84, 0.04)' },
                         ticks: { callback: function(v) { return v.toLocaleString('pl-PL'); } }
                     },
                     x: { grid: { display: false } }
