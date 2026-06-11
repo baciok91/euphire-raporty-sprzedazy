@@ -239,6 +239,7 @@
             transform: translateY(-4px);
             box-shadow: var(--card-hover-shadow);
             border-color: rgba(0, 77, 84, 0.2);
+            z-index: 10;
         }
         
         .card h3 {
@@ -305,23 +306,23 @@
 
         .tooltip-text {
             visibility: hidden;
-            width: 260px;
+            width: 300px;
+            max-width: 80vw;
             background-color: #002E32;
             color: #fff;
             text-align: left;
             border-radius: 8px;
-            padding: 0.75rem 1rem;
+            padding: 0.85rem 1.1rem;
             position: absolute;
             z-index: 100;
             bottom: 130%;
-            left: 50%;
-            transform: translateX(-50%);
+            right: -10px;
             opacity: 0;
             transition: opacity 0.3s, visibility 0.3s;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             font-family: var(--font-paragraphs);
-            font-weight: 400;
-            line-height: 1.4;
+            font-weight: 500;
+            line-height: 1.5;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             border: 1px solid rgba(252, 174, 47, 0.3);
             text-transform: none;
@@ -332,8 +333,7 @@
             content: "";
             position: absolute;
             top: 100%;
-            left: 50%;
-            margin-left: -5px;
+            right: 14px;
             border-width: 5px;
             border-style: solid;
             border-color: #002E32 transparent transparent transparent;
@@ -379,6 +379,7 @@
             transform: translateY(-4px);
             box-shadow: var(--card-hover-shadow);
             border-color: rgba(0, 77, 84, 0.2);
+            z-index: 10;
         }
         
         .variant-card h4 {
@@ -543,6 +544,69 @@
             font-weight: 700;
             color: #004D54;
         }
+        
+        /* RESPONSIVE DESIGN - MOBILE FIXES */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem 2rem 1rem;
+            }
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+                padding: 0 1rem;
+            }
+            .header-text h1 {
+                font-size: 1.8rem;
+            }
+            .filter-container {
+                padding: 1rem;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+            .filter-input {
+                width: 100%;
+            }
+            .btn-group {
+                justify-content: center;
+                width: 100%;
+            }
+            .filter-btn {
+                flex: 1;
+                text-align: center;
+                padding: 0.5rem 0.5rem;
+                font-size: 0.7rem;
+            }
+            .card {
+                padding: 1.25rem;
+            }
+            .card .value {
+                font-size: 1.8rem;
+            }
+            .variant-card {
+                padding: 1.25rem;
+                min-width: 100%;
+            }
+            .variant-rev {
+                font-size: 1.5rem;
+            }
+            .chart-container {
+                padding: 1rem;
+                height: 320px !important;
+            }
+            .chart-container h3 {
+                font-size: 0.95rem !important;
+            }
+            .chart-container > div {
+                height: 230px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -551,7 +615,7 @@
             <div class="header-text">
                 <span class="overline">Raport Analityczny / Produkt</span>
                 <h1>Sprzedaż: Labirynt Rozmów</h1>
-                <span class="overline">Wygenerowano: 11.06.2026 17:46</span>
+                <span class="overline">Wygenerowano: 11.06.2026 17:48</span>
             </div>
             <div class="logo-container">
                 <img src="https://euphire.pl/wp-content/uploads/2025/11/logo_primary.svg" alt="Euphire Logo">
