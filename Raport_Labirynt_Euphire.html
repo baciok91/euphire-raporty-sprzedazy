@@ -247,6 +247,9 @@
             letter-spacing: 0.05em;
             margin-bottom: 0.75rem;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
         .card .value {
@@ -267,6 +270,77 @@
             font-size: 0.85rem;
             color: #607274;
             font-weight: 500;
+        }
+
+        /* Tooltip styling */
+        .info-tooltip-container {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            margin-left: 6px;
+        }
+
+        .info-icon {
+            font-size: 0.75rem;
+            color: var(--accent-subtle);
+            background: rgba(0, 77, 84, 0.06);
+            width: 17px;
+            height: 17px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 700;
+            font-family: sans-serif;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(178, 202, 204, 0.5);
+        }
+
+        .info-icon:hover {
+            background: var(--accent);
+            color: var(--text-main);
+            border-color: var(--accent);
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 260px;
+            background-color: #002E32;
+            color: #fff;
+            text-align: left;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            position: absolute;
+            z-index: 100;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            font-size: 0.8rem;
+            font-family: var(--font-paragraphs);
+            font-weight: 400;
+            line-height: 1.4;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 1px solid rgba(252, 174, 47, 0.3);
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #002E32 transparent transparent transparent;
+        }
+
+        .info-tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
         }
         
         /* VARIANT ANALYSIS */
@@ -313,6 +387,9 @@
             text-transform: uppercase;
             letter-spacing: 0.03em;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
         .variant-stats {
@@ -365,7 +442,7 @@
         
         @media (min-width: 992px) {
             .charts-grid-row1 {
-                grid-template-columns: 2fr 1fr;
+                grid-template-columns: 1fr 1fr;
             }
         }
         
@@ -472,7 +549,7 @@
             <div class="header-text">
                 <span class="overline">Raport Analityczny / Produkt</span>
                 <h1>Sprzedaż: Labirynt Rozmów</h1>
-                <span class="overline">Wygenerowano: 11.06.2026 15:25</span>
+                <span class="overline">Wygenerowano: 11.06.2026 15:27</span>
             </div>
             <div class="logo-container">
                 <img src="https://euphire.pl/wp-content/uploads/2025/11/logo_primary.svg" alt="Euphire Logo">
@@ -511,22 +588,42 @@
         <h2 class="section-title">Podsumowanie Okresu</h2>
         <div class="summary-grid">
             <div class="card">
-                <h3>Całkowity Przychód</h3>
+                <h3>Całkowity Przychód
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Łączna kwota brutto, która wpłynęła od klientów po odliczeniu wszystkich zniżek. Pokazuje realne pieniądze zarobione na sprzedaży.</span>
+                    </span>
+                </h3>
                 <div class="value accent data-value" id="total-revenue">0,00 zł</div>
                 <p>Uwzględnia faktyczne wpłaty (po zniżkach)</p>
             </div>
             <div class="card">
-                <h3>Liczba Zamówień</h3>
+                <h3>Liczba Zamówień
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Łączna liczba sfinalizowanych zakupów. Każde zamówienie oznacza transakcję jednego klienta w sklepie.</span>
+                    </span>
+                </h3>
                 <div class="value data-value" id="total-orders">0</div>
                 <p>Potwierdzone transakcje w zbiorze</p>
             </div>
             <div class="card">
-                <h3>Łącznie Sprzedano (Sztuk)</h3>
+                <h3>Łącznie Sprzedano (Sztuk)
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Suma sprzedanych fizycznych i cyfrowych sztuk gry. Jeśli klient kupi więcej niż jedną sztukę w zamówieniu, ta wartość będzie większa od liczby zamówień.</span>
+                    </span>
+                </h3>
                 <div class="value data-value" id="total-sales">0</div>
                 <p>Obejmuje sztuki wszystkich wariantów</p>
             </div>
             <div class="card">
-                <h3>Średni Koszyk (AOV)</h3>
+                <h3>Średni Koszyk (AOV)
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Średnia wartość jednego zamówienia (czyli ile przeciętnie klient wydaje przy jednym zakupie). Wyliczana jako całkowity przychód podzielony przez liczbę zamówień.</span>
+                    </span>
+                </h3>
                 <div class="value data-value" id="avg-order-value">0,00 zł</div>
                 <p>Średni koszyk z zakupem wariantu</p>
             </div>
@@ -535,12 +632,22 @@
         <h2 class="section-title" style="color: #004D54; border-color: rgba(252, 174, 47, 0.4);">Analiza Użycia Rabatów & Marży</h2>
         <div class="summary-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 3rem;">
             <div class="card" style="border-left: 4px solid var(--accent);">
-                <h3>Udział Zamówień z Kodem</h3>
+                <h3>Udział Zamówień z Kodem
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Procent transakcji, w których klient użył kodu rabatowego. Pokazuje, jak duża część sprzedaży opiera się na promocjach.</span>
+                    </span>
+                </h3>
                 <div class="value data-value" id="discount-pct">0%</div>
                 <p id="discount-count-ratio">0 z 0 zamówień</p>
             </div>
             <div class="card" style="border-left: 4px solid var(--accent);">
-                <h3>AOV: Bez Kodu vs Z Kodem</h3>
+                <h3>AOV: Bez Kodu vs Z Kodem
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Porównanie średniej kwoty zamówienia dla klientów płacących pełną cenę i tych korzystających ze zniżek. Pomaga ocenić wpływ rabatów na wielkość zakupów.</span>
+                    </span>
+                </h3>
                 <div class="value data-value" style="font-size: 1.25rem; display: flex; flex-direction: column; gap: 0.2rem; margin-top: 0.2rem; font-family: var(--font-data);" id="aov-comparison">
                     <span style="color: #004D54; font-weight: 700;">Bez kodu: <strong id="aov-no-code" style="font-size: 1.35rem;">0,00 zł</strong></span>
                     <span style="color: var(--accent); font-weight: 700;">Z kodem: <strong id="aov-with-code" style="font-size: 1.35rem;">0,00 zł</strong></span>
@@ -548,12 +655,22 @@
                 <p>Średni koszyk z kodem vs bez kodu</p>
             </div>
             <div class="card" style="border-left: 4px solid var(--accent);">
-                <h3>Przychód z Rabatów</h3>
+                <h3>Przychód z Rabatów
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Suma pieniędzy, która wpłynęła do sklepu z zamówień promocyjnych (czyli od klientów, którzy wpisali kod rabatowy).</span>
+                    </span>
+                </h3>
                 <div class="value data-value" id="discount-revenue">0,00 zł</div>
                 <p>Suma wpłat od osób używających kodów</p>
             </div>
             <div class="card" style="border-left: 4px solid var(--accent);">
-                <h3>Udzielone Zniżki (Suma)</h3>
+                <h3>Udzielone Zniżki (Suma)
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Łączna kwota rabatów przyznanych klientom. Pokazuje, ile potencjalnego przychodu 'oddaliśmy' w formie zniżek na rzecz promocji.</span>
+                    </span>
+                </h3>
                 <div class="value data-value" id="discount-saved">0,00 zł</div>
                 <p>Kwota zaoszczędzona przez kupujących</p>
             </div>
@@ -562,21 +679,36 @@
         <h2 class="section-title">Wyniki Koszykowe Na Warianty</h2>
         <div class="variant-grid">
             <div class="variant-card" id="card-fizyczna">
-                <h4>Wersja Fizyczna (Pudełko)</h4>
+                <h4>Wersja Fizyczna (Pudełko)
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Wszystkie wskaźniki (kwota i sztuki) dotyczące wyłącznie tradycyjnego, fizycznego wydania gry w pudełku.</span>
+                    </span>
+                </h4>
                 <div class="variant-stats">
                     <div class="variant-rev" id="rev-fizyczna">0,00 zł</div>
                     <div class="variant-count" id="count-fizyczna">0 szt.</div>
                 </div>
             </div>
             <div class="variant-card" id="card-cyfrowa">
-                <h4>Wersja Cyfrowa (On-line)</h4>
+                <h4>Wersja Cyfrowa (On-line)
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Statystyki dotyczące gry w wersji cyfrowej (dostęp do rozgrywki na urządzeniach online).</span>
+                    </span>
+                </h4>
                 <div class="variant-stats">
                     <div class="variant-rev" id="rev-cyfrowa">0,00 zł</div>
                     <div class="variant-count" id="count-cyfrowa">0 szt.</div>
                 </div>
             </div>
             <div class="variant-card" id="card-pakiet">
-                <h4>Pakiet (Pudełko + On-line)</h4>
+                <h4>Pakiet (Pudełko + On-line)
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Statystyki zakupu pakietu hybrydowego: pudełko fizyczne z jednoczesnym dostępem online.</span>
+                    </span>
+                </h4>
                 <div class="variant-stats">
                     <div class="variant-rev" id="rev-pakiet">0,00 zł</div>
                     <div class="variant-count" id="count-pakiet">0 szt.</div>
@@ -584,17 +716,45 @@
             </div>
         </div>
         
+        <h2 class="section-title" style="color: #004D54; border-color: rgba(252, 174, 47, 0.45);">Droga Do Sukcesu</h2>
+        <div style="margin-bottom: 3rem;">
+            <div class="chart-container" style="height: 400px; width: 100%;">
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; justify-content: space-between;">
+                    Skumulowany Przychód w Czasie (Wykres Satysfakcji)
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Ten wykres pokazuje, jak przychód rósł i kumulował się z dnia na dzień. Linia stale pnie się w górę, obrazując całkowitą zarobioną kwotę od początku wybranego okresu.</span>
+                    </span>
+                </h3>
+                <div style="position: relative; height: 330px; width: 100%;">
+                    <canvas id="cumulativeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
         <h2 class="section-title">Dynamika Sprzedaży</h2>
         <div class="charts-grid-row1">
             <div class="chart-container" style="height: 380px;">
-                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Trendy Przychodu (Dzienne)</h3>
-                <div style="position: relative; height: 320px; width: 100%;">
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; justify-content: space-between;">
+                    Trendy Przychodu (Dzienne)
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Dzienna wysokość sprzedaży. Pozwala dostrzec nagłe skoki (np. w dniach kampanii mailingowych lub reklam) oraz naturalne wahania.</span>
+                    </span>
+                </h3>
+                <div style="position: relative; height: 310px; width: 100%;">
                     <canvas id="dailyChart"></canvas>
                 </div>
             </div>
             <div class="chart-container" style="height: 380px;">
-                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Przychód Miesięczny (MoM)</h3>
-                <div style="position: relative; height: 320px; width: 100%;">
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; justify-content: space-between;">
+                    Przychód Miesięczny (MoM)
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Ujęcie miesięczne pokazujące łączną sprzedaż w kolejnych miesiącach. Idealne do porównywania wzrostu miesiąc do miesiąca.</span>
+                    </span>
+                </h3>
+                <div style="position: relative; height: 310px; width: 100%;">
                     <canvas id="monthlyChart"></canvas>
                 </div>
             </div>
@@ -603,19 +763,37 @@
         <h2 class="section-title">Analiza Marketingowa & Kampanie</h2>
         <div class="charts-grid-row2">
             <div class="chart-container">
-                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Przychód Tygodniowy</h3>
-                <div style="position: relative; height: 320px; width: 100%;">
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; justify-content: space-between;">
+                    Przychód Tygodniowy
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Suma przychodów pogrupowana w cykle tygodniowe. Ułatwia analizę średnioterminowych trendów bez dziennych zakłóceń.</span>
+                    </span>
+                </h3>
+                <div style="position: relative; height: 310px; width: 100%;">
                     <canvas id="weeklyChart"></canvas>
                 </div>
             </div>
             <div class="chart-container">
-                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Sprzedaż wg Dni Tygodnia</h3>
-                <div style="position: relative; height: 320px; width: 100%;">
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; justify-content: space-between;">
+                    Sprzedaż wg Dni Tygodnia
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Łączna sprzedaż z podziałem na dni tygodnia. Pokazuje, w które dni klienci kupują najchętniej (np. weekendy vs środek tygodnia), co pomaga planować start reklam.</span>
+                    </span>
+                </h3>
+                <div style="position: relative; height: 310px; width: 100%;">
                     <canvas id="dayOfWeekChart"></canvas>
                 </div>
             </div>
             <div class="chart-container">
-                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Przychody: Rabat vs Standard</h3>
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; justify-content: space-between;">
+                    Przychody: Rabat vs Standard
+                    <span class="info-tooltip-container">
+                        <span class="info-icon">i</span>
+                        <span class="tooltip-text">Podział całkowitego przychodu na kwoty uzyskane ze sprzedaży w standardowej cenie oraz ze sprzedaży z użyciem kodów rabatowych.</span>
+                    </span>
+                </h3>
                 <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center; align-items: center;">
                     <canvas id="discountChart" style="max-height: 260px; max-width: 260px;"></canvas>
                 </div>
@@ -649,25 +827,100 @@
         Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
         Chart.defaults.color = "#1D2A2B";
  
+        // Konfiguracja tooltipów w formacie waluty PLN (ładne formatowanie dla człowieka)
+        const tooltipCurrencyCallback = {
+            callbacks: {
+                label: function(context) {
+                    let label = context.label || context.dataset.label || '';
+                    if (label) {
+                        label += ': ';
+                    }
+                    let val = 0;
+                    if (context.parsed !== undefined && context.parsed.y !== undefined) {
+                        val = context.parsed.y;
+                    } else if (context.parsed !== undefined && typeof context.parsed === 'number') {
+                        val = context.parsed;
+                    } else {
+                        val = context.raw || 0;
+                    }
+                    label += val.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+                    return label;
+                }
+            }
+        };
+
+        // Wspólne opcje osi Y z ładnym formatowaniem zł
+        const currencyYScale = {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString('pl-PL') + ' zł';
+                    }
+                }
+            }
+        };
+
+        // Ograniczenie gęstości osi X
+        const cleanXScale = {
+            x: {
+                ticks: {
+                    maxTicksLimit: 12,
+                    maxRotation: 0,
+                    autoSkip: true
+                },
+                grid: {
+                    display: false
+                }
+            }
+        };
+ 
         const ctxDaily = document.getElementById('dailyChart').getContext('2d');
         const dailyChartInstance = new Chart(ctxDaily, {
             type: 'line',
-            data: { labels: [], datasets: [{ label: 'Przychód Brutto', data: [], borderColor: '#004D54', borderWidth: 3, pointRadius: 4, tension: 0.3 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            data: { labels: [], datasets: [{ label: 'Przychód Dzienny', data: [], borderColor: '#004D54', borderWidth: 2.5, pointRadius: 1, fill: true, backgroundColor: 'rgba(0, 77, 84, 0.07)', tension: 0.3 }] },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false }, tooltip: tooltipCurrencyCallback }, 
+                scales: Object.assign({}, currencyYScale, cleanXScale)
+            }
+        });
+
+        const ctxCumulative = document.getElementById('cumulativeChart').getContext('2d');
+        const cumulativeChartInstance = new Chart(ctxCumulative, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'Suma Skumulowana', data: [], borderColor: '#FCAE2F', borderWidth: 4, pointRadius: 0, fill: true, backgroundColor: 'rgba(252, 174, 47, 0.1)', tension: 0.3 }] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: tooltipCurrencyCallback },
+                scales: Object.assign({}, currencyYScale, cleanXScale)
+            }
         });
         
         const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
         const monthlyChartInstance = new Chart(ctxMonthly, {
             type: 'bar',
             data: { labels: [], datasets: [{ label: 'Przychód', data: [], backgroundColor: '#004D54', borderRadius: 4 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false }, tooltip: tooltipCurrencyCallback }, 
+                scales: currencyYScale
+            }
         });
         
         const ctxWeekly = document.getElementById('weeklyChart').getContext('2d');
         const weeklyChartInstance = new Chart(ctxWeekly, {
             type: 'bar',
             data: { labels: [], datasets: [{ label: 'Przychód za Tydzień', data: [], backgroundColor: '#FCAE2F', borderRadius: 4 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false }, tooltip: tooltipCurrencyCallback }, 
+                scales: currencyYScale
+            }
         });
  
         const ctxDayOfWeek = document.getElementById('dayOfWeekChart').getContext('2d');
@@ -675,16 +928,26 @@
             type: 'bar',
             data: {
                 labels: ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Niedz'],
-                datasets: [{ label: 'Przychód', data: [0, 0, 0, 0, 0, 0, 0], backgroundColor: '#004D54', borderRadius: 4 }]
+                datasets: [{ label: 'Przychód Łączny', data: [0, 0, 0, 0, 0, 0, 0], backgroundColor: '#004D54', borderRadius: 4 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false }, tooltip: tooltipCurrencyCallback }, 
+                scales: currencyYScale
+            }
         });
  
         const ctxDiscount = document.getElementById('discountChart').getContext('2d');
         const discountChartInstance = new Chart(ctxDiscount, {
             type: 'doughnut',
             data: { labels: ['Cena standardowa', 'Z rabatem/kodem'], datasets: [{ data: [0, 0], backgroundColor: ['#004D54', '#FCAE2F'], borderWidth: 2 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '60%' }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { position: 'bottom' }, tooltip: tooltipCurrencyCallback }, 
+                cutout: '60%' 
+            }
         });
  
         // Standardowe punkty cenowe (bez promocji) do wykrywania kodów rabatowych
@@ -820,9 +1083,20 @@
             document.getElementById('best-week-rev').innerText = bestWeekRev.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
  
             // Aktualizacja wykresów
-            dailyChartInstance.data.labels = Object.keys(dailyMap).sort();
-            dailyChartInstance.data.datasets[0].data = dailyChartInstance.data.labels.map(k => dailyMap[k]);
+            const sortedDays = Object.keys(dailyMap).sort();
+            dailyChartInstance.data.labels = sortedDays;
+            dailyChartInstance.data.datasets[0].data = sortedDays.map(k => dailyMap[k]);
             dailyChartInstance.update();
+
+            // Przychód skumulowany (Suma skumulowana)
+            let runningSum = 0;
+            const cumulativeData = sortedDays.map(d => {
+                runningSum += dailyMap[d];
+                return runningSum;
+            });
+            cumulativeChartInstance.data.labels = sortedDays;
+            cumulativeChartInstance.data.datasets[0].data = cumulativeData;
+            cumulativeChartInstance.update();
             
             const sortedMonths = Object.keys(monthlyMap).sort();
             monthlyChartInstance.data.labels = sortedMonths.map(formatMonth);
