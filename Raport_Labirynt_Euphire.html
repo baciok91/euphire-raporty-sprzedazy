@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EUPHIRE | Analiza Labirynt Rozmów</title>
+    <!-- Google Fonts z EUPHIRE Design System -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-bg: #FAFAFA; /* Frost White */
+            --header-bg: #004D54; /* Evergreen */
+            --text-main: #1F1F1F; /* Obsidian Black */
+            --text-header-light: #FAFAFA;
+            --accent: #FCAE2F; /* Ember */
+            --accent-subtle: #B2CACC; /* Mist */
+            --gradient-dark: #002E32; /* Nocturne */
+            
+            --font-headings: 'Montserrat', sans-serif;
+            --font-paragraphs: 'Merriweather', serif;
+            --font-data: 'Roboto Mono', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            font-family: var(--font-paragraphs);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+        
+        /* Typography System */
+        h1, h2, h3, h4 {
+            font-family: var(--font-headings);
+            font-weight: 600;
+        }
+        
+        .overline {
+            font-family: var(--font-data);
+            line-height: 1.5;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        
+        .data-value {
+            font-family: var(--font-data);
+            font-weight: 500;
+        }
+        
+        .italic-highlight {
+            font-style: italic;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 3rem 2rem;
+        }
+        
+        /* HEADER SECTION */
+        .top-header {
+            background-color: var(--header-bg);
+            padding: 2rem 0;
+            margin-bottom: 3rem;
+            color: var(--text-header-light);
+            border-bottom: 5px solid var(--accent);
+            position: relative;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.05"/></svg>');
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-container img {
+            height: 48px;
+            display: block;
+        }
+        
+        .header-text h1 {
+            font-size: 2.2rem;
+            margin-top: 0.5rem;
+        }
+        
+        .header-text .overline {
+            color: var(--accent);
+        }
+        
+        /* SUMMARY GRID */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid var(--accent-subtle);
+            box-shadow: 0 4px 6px rgba(0, 77, 84, 0.05);
+            border-top: 4px solid var(--header-bg);
+        }
+        
+        .card h3 {
+            color: var(--header-bg);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card .value {
+            font-size: 2.2rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+        
+        .card .value.accent {
+            color: var(--accent);
+            text-shadow: 0px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .card p {
+            font-size: 0.95rem;
+            color: #555;
+        }
+        
+        /* VARIANT ANALYSIS */
+        .variant-grid {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .variant-card {
+            flex: 1;
+            min-width: 300px;
+            background: var(--header-bg);
+            color: var(--text-header-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-bottom: 4px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .variant-card::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.04"/></svg>');
+            pointer-events: none;
+        }
+        
+        .variant-card h4 {
+            color: var(--accent);
+            font-family: var(--font-data);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+        
+        .variant-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 1rem;
+        }
+        
+        .variant-rev { font-size: 1.8rem; font-family: var(--font-data); font-weight: 600; }
+        .variant-count { font-size: 1.1rem; opacity: 0.8; font-family: var(--font-data); }
+
+        /* CHARTS AREA */
+        .section-title {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--header-bg);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .section-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background-color: var(--accent-subtle);
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        @media (min-width: 1024px) {
+            .charts-grid { grid-template-columns: 2fr 1fr; }
+        }
+
+        .chart-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid var(--accent-subtle);
+            height: 400px;
+        }
+        
+        /* INSIGHTS */
+        .insights {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 2.5rem;
+            border: 1px solid var(--accent-subtle);
+            border-left: 6px solid var(--header-bg);
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        
+        .insights h2 {
+            color: var(--header-bg);
+            margin-bottom: 1.5rem;
+            font-size: 1.6rem;
+        }
+        
+        .insights ul {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        
+        .insights li {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 1.1rem;
+        }
+        
+        .insights li::before {
+            content: "•";
+            color: var(--accent);
+            font-size: 2rem;
+            position: absolute;
+            left: 0;
+            top: -0.5rem;
+        }
+        
+        .badge {
+            background: var(--header-bg);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: var(--font-data);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-header">
+        <div class="header-content">
+            <div class="header-text">
+                <span class="overline">Raport Analityczny / Produkt</span>
+                <h1>Sprzedaż: Labirynt Rozmów</h1>
+                <span class="overline">Wygenerowano: 11.06.2026 14:41</span>
+            </div>
+            <div class="logo-container">
+                <!-- EUPHIRE Primary Logo (Yellow Ember on Evergreen context) -->
+                <img src="https://euphire.pl/wp-content/uploads/2025/11/logo_primary.svg" alt="Euphire Logo">
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <h2 class="section-title">Podsumowanie Okresu</h2>
+        <div class="summary-grid">
+            <div class="card">
+                <h3>Całkowity Przychód</h3>
+                <div class="value accent data-value">114,107.33 zł</div>
+                <p>Tylko przychód z przypisanych wariantów</p>
+            </div>
+            <div class="card">
+                <h3>Liczba Zamówień</h3>
+                <div class="value data-value">1116</div>
+                <p>Potwierdzone transakcje w zbiorze</p>
+            </div>
+            <div class="card">
+                <h3>Łącznie Sprzedano (Sztuk)</h3>
+                <div class="value data-value">1,116</div>
+                <p>Obejmuje sztuki wszystkich wariantów</p>
+            </div>
+            <div class="card">
+                <h3>Średni Wartość Zam. (AOV)</h3>
+                <div class="value data-value">102.25 zł</div>
+                <p>Średni koszyk z zakupem wariantu</p>
+            </div>
+        </div>
+        
+        <h2 class="section-title">Wyniki Koszykowe Na Warianty</h2>
+        <div class="variant-grid">
+        
+            <div class="variant-card">
+                <h4>Pakiet (Pudełko + On-line)</h4>
+                <div class="variant-stats">
+                    <div class="variant-rev">10,262.80 zł</div>
+                    <div class="variant-count">68 szt.</div>
+                </div>
+            </div>
+    
+            <div class="variant-card">
+                <h4>Wersja Cyfrową (On-line)</h4>
+                <div class="variant-stats">
+                    <div class="variant-rev">8,050.70 zł</div>
+                    <div class="variant-count">107 szt.</div>
+                </div>
+            </div>
+    
+            <div class="variant-card">
+                <h4>Wersja Fizyczna (Pudełko)</h4>
+                <div class="variant-stats">
+                    <div class="variant-rev">95,793.83 zł</div>
+                    <div class="variant-count">941 szt.</div>
+                </div>
+            </div>
+    
+        </div>
+        
+        <h2 class="section-title">Dynamika Sprzedaży</h2>
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: var(--header-bg);">Trendy Dzienne</h3>
+                <div style="position: relative; height: 320px; width: 100%;">
+                    <canvas id="dailyChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: var(--header-bg);">Przychód Tygodniowy</h3>
+                <div style="position: relative; height: 320px; width: 100%;">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights">
+            <h2>Wnioski Zgodne z <span class="italic-highlight">Factami, Metodą, Praktyką</span></h2>
+            <p>Zautomatyzowana analiza odnotowała następujące momenty skrajne z podzbioru danych dotyczących wyłącznie produktu "Labirynt Rozmów":</p>
+            <ul>
+                <li><strong>Najsilniejszy dzień pod względem przychodów:</strong> Dzień <span class="badge">2026-02-09</span> z wynikiem <span class="data-value">2,607.00 zł</span>.</li>
+                <li><strong>Najsilniejszy tydzień łączny:</strong> <span class="badge">2026-W07</span> generujący przychód w wysokości <span class="data-value">13,033.70 zł</span>.</li>
+                <li>Zestawienie <span class="italic-highlight">wariantów pudełkowych oraz online</span> wskazuje, jak użytkownicy wybierają formę gry w skali danego ujęcia czasu. Pamiętaj, aby śledzić spadek / przyrost zainteresowania pakietami premium w okresach przedświątecznych lub po kampaniach mailingowych marki Euphire.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Data injected via Python
+        const dailyLabels = ["2025-12-10", "2025-12-11", "2025-12-12", "2025-12-15", "2025-12-16", "2025-12-17", "2025-12-18", "2025-12-19", "2025-12-20", "2025-12-21", "2025-12-22", "2025-12-23", "2025-12-24", "2025-12-26", "2025-12-27", "2025-12-28", "2025-12-29", "2025-12-30", "2025-12-31", "2026-01-01", "2026-01-02", "2026-01-03", "2026-01-04", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08", "2026-01-09", "2026-01-10", "2026-01-11", "2026-01-12", "2026-01-13", "2026-01-14", "2026-01-15", "2026-01-16", "2026-01-17", "2026-01-18", "2026-01-19", "2026-01-20", "2026-01-21", "2026-01-22", "2026-01-23", "2026-01-24", "2026-01-25", "2026-01-26", "2026-01-27", "2026-01-28", "2026-01-29", "2026-01-30", "2026-01-31", "2026-02-01", "2026-02-02", "2026-02-03", "2026-02-04", "2026-02-05", "2026-02-06", "2026-02-07", "2026-02-08", "2026-02-09", "2026-02-10", "2026-02-11", "2026-02-12", "2026-02-13", "2026-02-14", "2026-02-15", "2026-02-16", "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20", "2026-02-21", "2026-02-22", "2026-02-23", "2026-02-24", "2026-02-25", "2026-02-26", "2026-02-27", "2026-02-28", "2026-03-01", "2026-03-02", "2026-03-03", "2026-03-04", "2026-03-05", "2026-03-06", "2026-03-08", "2026-03-09", "2026-03-10", "2026-03-11", "2026-03-12", "2026-03-14", "2026-03-15", "2026-03-16", "2026-03-17", "2026-03-18", "2026-03-19", "2026-03-20", "2026-03-21", "2026-03-22", "2026-03-23", "2026-03-24", "2026-03-25", "2026-03-26", "2026-03-27", "2026-03-28", "2026-03-29", "2026-03-30", "2026-04-01", "2026-04-02", "2026-04-03", "2026-04-04", "2026-04-05", "2026-04-06", "2026-04-07", "2026-04-08", "2026-04-09", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18", "2026-04-19", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-25", "2026-04-26", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-01", "2026-05-02", "2026-05-03", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30", "2026-05-31", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-06", "2026-06-07", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11"];
+        const dailyRevenue = [297.0, 485.1, 198.0, 940.5, 1633.5, 1069.2, 792.0, 1623.6, 1178.1, 1554.3, 1069.2, 327.0, 178.2, 485.1, 401.2, 970.2, 594.0, 188.1, 297.0, 564.3, 891.0, 918.3, 1514.4, 1188.0, 527.1, 495.0, 594.0, 413.1, 829.2, 297.0, 762.0, 499.5, 512.1, 564.0, 680.1, 1005.15, 426.0, 426.0, 730.2, 611.1, 861.0, 485.1, 782.1, 485.1, 882.0, 1178.1, 426.0, 822.0, 413.1, 564.0, 852.0, 495.0, 386.1, 1516.0, 1100.0, 1117.1, 655.1, 1825.1, 2607.0, 2520.2, 2415.1, 2388.1, 1335.2, 455.0, 1313.1, 1450.1, 747.0, 1086.0, 797.0, 615.0, 658.0, 1226.0, 1088.0, 1889.0, 1038.0, 600.0, 438.0, 228.0, 437.0, 308.1, 569.0, 120.0, 768.0, 899.1, 179.1, 228.0, 209.0, 396.0, 188.0, 386.0, 457.2, 495.0, 396.0, 297.0, 198.0, 99.0, 99.0, 297.0, 198.0, 362.74, 199.0, 287.0, 396.0, 89.0, 664.2, 99.0, 386.1, 99.0, 99.0, 277.1, 386.0, 99.0, 367.1, 396.0, 188.0, 287.0, 287.1, 386.0, 198.0, 753.3, 287.1, 534.0, 158.1, 277.0, 178.1, 198.0, 476.1, 139.2, 69.0, 99.0, 465.0, 298.0, 396.0, 466.2, 267.0, 297.0, 297.0, 188.0, 69.0, 376.2, 405.0, 268.0, 376.2, 644.1, 197.0, 425.0, 217.1, 454.2, 435.0, 719.84, 919.1, 1050.0, 534.0, 534.0, 158.1, 930.0, 930.0, 435.0, 702.0, 822.3, 851.0, 910.0, 1424.1, 890.1, 951.0, 443.1, 1209.0, 713.0, 445.0, 396.0, 902.0, 1722.1, 701.1, 1120.0, 814.0, 831.1, 829.1, 268.0];
+        const weeklyLabels = ["2025-W50", "2025-W51", "2025-W52", "2026-W01", "2026-W02", "2026-W03", "2026-W04", "2026-W05", "2026-W06", "2026-W07", "2026-W08", "2026-W09", "2026-W10", "2026-W11", "2026-W12", "2026-W13", "2026-W14", "2026-W15", "2026-W16", "2026-W17", "2026-W18", "2026-W19", "2026-W20", "2026-W21", "2026-W22", "2026-W23", "2026-W24"];
+        const weeklyRevenue = [980.1, 8791.2, 3430.9, 4967.1, 4343.4, 4448.85, 4380.6, 5137.2, 7094.4, 13033.7, 6579.1, 5718.0, 2843.3, 1864.2, 1881.0, 2195.94, 1346.2, 2010.2, 2385.6, 1744.3, 1980.2, 2691.5, 4329.24, 4511.4, 6678.3, 5999.2, 2742.2];
+        
+        Chart.defaults.font.family = "'Roboto Mono', monospace";
+        Chart.defaults.color = "#1F1F1F";
+
+        // Daily Chart Render (Line with gradient - Evergreen to Mist)
+        const ctxDaily = document.getElementById('dailyChart').getContext('2d');
+        const gradientDaily = ctxDaily.createLinearGradient(0, 0, 0, 320);
+        gradientDaily.addColorStop(0, 'rgba(0, 77, 84, 0.4)'); // Evergreen 
+        gradientDaily.addColorStop(1, 'rgba(178, 202, 204, 0.05)'); // Mist
+        
+        new Chart(ctxDaily, {
+            type: 'line',
+            data: {
+                labels: dailyLabels,
+                datasets: [{
+                    label: 'Przychód Brutto',
+                    data: dailyRevenue,
+                    borderColor: '#004D54',
+                    backgroundColor: gradientDaily,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#FAFAFA',
+                    pointBorderColor: '#FCAE2F',
+                    pointBorderWidth: 3,
+                    pointRadius: 5,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1F1F1F',
+                        titleColor: '#FCAE2F',
+                        bodyColor: '#FAFAFA',
+                        padding: 12,
+                        callbacks: {
+                            label: function(ct) { return ct.parsed.y.toLocaleString('pl-PL') + ' zł'; }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        ticks: { callback: function(v) { return v.toLocaleString('pl-PL'); } }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+        
+        // Weekly Chart Render (Bar - Ember & Evergreen colors)
+        const ctxWeekly = document.getElementById('weeklyChart').getContext('2d');
+        new Chart(ctxWeekly, {
+            type: 'bar',
+            data: {
+                labels: weeklyLabels,
+                datasets: [{
+                    label: 'Przychód za Tydzień',
+                    data: weeklyRevenue,
+                    backgroundColor: '#FCAE2F',
+                    borderRadius: 4,
+                    barPercentage: 0.5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#004D54',
+                        titleColor: '#FCAE2F',
+                        bodyColor: '#FAFAFA',
+                        padding: 12,
+                        callbacks: {
+                            label: function(ct) { return ct.parsed.y.toLocaleString('pl-PL') + ' zł'; }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        ticks: { callback: function(v) { return v.toLocaleString('pl-PL'); } }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
