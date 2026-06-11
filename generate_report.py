@@ -240,7 +240,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         
         .btn-group {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.4rem;
             flex-wrap: wrap;
         }
         
@@ -250,8 +250,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             color: #004D54;
             font-family: var(--font-headings);
             font-weight: 700;
-            font-size: 0.8rem;
-            padding: 0.55rem 1.25rem;
+            font-size: 0.75rem;
+            padding: 0.5rem 1rem;
             border-radius: 6px;
             cursor: pointer;
             text-transform: uppercase;
@@ -273,7 +273,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         /* SUMMARY GRID */
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 1.5rem;
             margin-bottom: 3rem;
         }
@@ -399,7 +399,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             font-family: var(--font-data);
             font-weight: 600;
         }
-
+ 
         /* CHARTS AREA */
         .section-title {
             margin-bottom: 1.5rem;
@@ -419,24 +419,45 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             background: linear-gradient(90deg, rgba(178, 202, 204, 0.5) 0%, rgba(178, 202, 204, 0.05) 100%);
         }
         
-        .charts-grid {
+        .charts-grid-row1 {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 2rem;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (min-width: 992px) {
+            .charts-grid-row1 {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        
+        .charts-grid-row2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
             margin-bottom: 3rem;
         }
         
-        @media (min-width: 1024px) {
-            .charts-grid { grid-template-columns: 2fr 1fr; }
+        @media (min-width: 768px) {
+            .charts-grid-row2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
-
+        
+        @media (min-width: 1200px) {
+            .charts-grid-row2 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+ 
         .chart-container {
             background-color: #ffffff;
             border-radius: 12px;
             padding: 1.75rem;
             border: 1px solid rgba(178, 202, 204, 0.3);
             box-shadow: var(--card-shadow);
-            height: 420px;
+            height: 400px;
             transition: all 0.3s ease;
         }
         
@@ -517,18 +538,27 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 <span class="overline">Wygenerowano: {{GENERATED_DATE}}</span>
             </div>
             <div class="logo-container">
-                <!-- EUPHIRE Primary Logo (Yellow Ember on Evergreen context) -->
                 <img src="https://euphire.pl/wp-content/uploads/2025/11/logo_primary.svg" alt="Euphire Logo">
             </div>
         </div>
     </div>
-
+ 
     <div class="container">
         
         <!-- DYNAMIC FILTER CONTAINER -->
         <div class="filter-container">
             <div class="filter-group">
-                <span class="filter-label">Filtrowanie zakresu:</span>
+                <span class="filter-label">Wariant:</span>
+                <select id="variantSelect" class="filter-input" style="cursor: pointer; font-weight: 600; padding-right: 1.5rem;">
+                    <option value="all">Wszystkie warianty</option>
+                    <option value="Wersja Fizyczna (Pudełko)">Wersja Fizyczna (Pudełko)</option>
+                    <option value="Wersja Cyfrową (On-line)">Wersja Cyfrową (On-line)</option>
+                    <option value="Pakiet (Pudełko + On-line)">Pakiet (Pudełko + On-line)</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <span class="filter-label">Zakres dat:</span>
                 <input type="date" id="startDate" class="filter-input">
                 <span class="filter-label" style="font-weight: normal; color: #555;">do</span>
                 <input type="date" id="endDate" class="filter-input">
@@ -536,6 +566,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <div class="btn-group">
                 <button class="filter-btn" id="btn-14d">Ostatnie 14 dni</button>
                 <button class="filter-btn" id="btn-30d">Ostatnie 30 dni</button>
+                <button class="filter-btn" id="btn-90d">Ostatnie 90 dni</button>
                 <button class="filter-btn active" id="btn-all">Cały okres</button>
             </div>
         </div>
@@ -545,7 +576,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <div class="card">
                 <h3>Całkowity Przychód</h3>
                 <div class="value accent data-value" id="total-revenue">0,00 zł</div>
-                <p>Tylko przychód z przypisanych wariantów</p>
+                <p>Uwzględnia faktyczne wpłaty (po zniżkach)</p>
             </div>
             <div class="card">
                 <h3>Liczba Zamówień</h3>
@@ -558,9 +589,36 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 <p>Obejmuje sztuki wszystkich wariantów</p>
             </div>
             <div class="card">
-                <h3>Średni Wartość Zam. (AOV)</h3>
+                <h3>Średni Koszyk (AOV)</h3>
                 <div class="value data-value" id="avg-order-value">0,00 zł</div>
                 <p>Średni koszyk z zakupem wariantu</p>
+            </div>
+        </div>
+        
+        <h2 class="section-title" style="color: #004D54; border-color: rgba(252, 174, 47, 0.4);">Analiza Użycia Rabatów & Marży</h2>
+        <div class="summary-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 3rem;">
+            <div class="card" style="border-left: 4px solid var(--accent);">
+                <h3>Udział Zamówień z Kodem</h3>
+                <div class="value data-value" id="discount-pct">0%</div>
+                <p id="discount-count-ratio">0 z 0 zamówień</p>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--accent);">
+                <h3>AOV: Bez Kodu vs Z Kodem</h3>
+                <div class="value data-value" style="font-size: 1.25rem; display: flex; flex-direction: column; gap: 0.2rem; margin-top: 0.2rem; font-family: var(--font-data);" id="aov-comparison">
+                    <span style="color: #004D54; font-weight: 700;">Bez kodu: <strong id="aov-no-code" style="font-size: 1.35rem;">0,00 zł</strong></span>
+                    <span style="color: var(--accent); font-weight: 700;">Z kodem: <strong id="aov-with-code" style="font-size: 1.35rem;">0,00 zł</strong></span>
+                </div>
+                <p>Średni koszyk z kodem vs bez kodu</p>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--accent);">
+                <h3>Przychód z Rabatów</h3>
+                <div class="value data-value" id="discount-revenue">0,00 zł</div>
+                <p>Suma wpłat od osób używających kodów</p>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--accent);">
+                <h3>Udzielone Zniżki (Suma)</h3>
+                <div class="value data-value" id="discount-saved">0,00 zł</div>
+                <p>Kwota zaoszczędzona przez kupujących</p>
             </div>
         </div>
         
@@ -590,24 +648,46 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </div>
         
         <h2 class="section-title">Dynamika Sprzedaży</h2>
-        <div class="charts-grid">
-            <div class="chart-container">
-                <h3 style="font-family: var(--font-headings); margin-bottom: 1.25rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Trendy Dzienne</h3>
+        <div class="charts-grid-row1">
+            <div class="chart-container" style="height: 380px;">
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Trendy Przychodu (Dzienne)</h3>
                 <div style="position: relative; height: 320px; width: 100%;">
                     <canvas id="dailyChart"></canvas>
                 </div>
             </div>
+            <div class="chart-container" style="height: 380px;">
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Przychód Miesięczny (MoM)</h3>
+                <div style="position: relative; height: 320px; width: 100%;">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">Analiza Marketingowa & Kampanie</h2>
+        <div class="charts-grid-row2">
             <div class="chart-container">
-                <h3 style="font-family: var(--font-headings); margin-bottom: 1.25rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Przychód Tygodniowy</h3>
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Przychód Tygodniowy</h3>
                 <div style="position: relative; height: 320px; width: 100%;">
                     <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Sprzedaż wg Dni Tygodnia</h3>
+                <div style="position: relative; height: 320px; width: 100%;">
+                    <canvas id="dayOfWeekChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h3 style="font-family: var(--font-headings); margin-bottom: 1rem; color: #004D54; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.03em;">Przychody: Rabat vs Standard</h3>
+                <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center; align-items: center;">
+                    <canvas id="discountChart" style="max-height: 260px; max-width: 260px;"></canvas>
                 </div>
             </div>
         </div>
         
         <div class="insights">
-            <h2>Wnioski Zgodne z <span class="italic-highlight">Factami, Metodą, Praktyką</span></h2>
-            <p>Zautomatyzowana analiza odnotowała następujące momenty skrajne z podzbioru danych dotyczących wyłącznie produktu "Labirynt Rozmów":</p>
+            <h2>Wnioski Zgodne z <span class="italic-highlight">Faktami, Metodą, Praktyką</span></h2>
+            <p>Zautomatyzowana analiza odnotowała następujące momenty skrajne z podzbioru danych w wybranym przedziale czasowym:</p>
             <ul>
                 <li><strong>Najsilniejszy dzień pod względem przychodów:</strong> Dzień <span class="badge" id="best-day-badge">-</span> z wynikiem <span class="badge-rev" id="best-day-rev">0,00 zł</span>.</li>
                 <li><strong>Najsilniejszy tydzień łączny:</strong> <span class="badge" id="best-week-badge">-</span> generujący przychód w wysokości <span class="badge-rev" id="best-week-rev">0,00 zł</span>.</li>
@@ -615,12 +695,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             </ul>
         </div>
     </div>
-
+ 
     <script>
-        // Data injected via Python
         const rawTransactions = {{RAW_TRANSACTIONS_JSON}};
         
-        // Helper to get ISO Week format
         function getISOWeek(dateString) {
             const date = new Date(dateString);
             const tempDate = new Date(date.valueOf());
@@ -630,268 +708,221 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             const weekStr = weekNo < 10 ? '0' + weekNo : weekNo;
             return `${tempDate.getFullYear()}-W${weekStr}`;
         }
-
+ 
         Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
         Chart.defaults.color = "#1D2A2B";
-
-        // Daily Chart Render (Line with gradient - Evergreen to Mist)
+ 
         const ctxDaily = document.getElementById('dailyChart').getContext('2d');
-        const gradientDaily = ctxDaily.createLinearGradient(0, 0, 0, 320);
-        gradientDaily.addColorStop(0, 'rgba(0, 77, 84, 0.45)'); // Evergreen 
-        gradientDaily.addColorStop(1, 'rgba(178, 202, 204, 0.05)'); // Mist
-        
         const dailyChartInstance = new Chart(ctxDaily, {
             type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Przychód Brutto',
-                    data: [],
-                    borderColor: '#004D54',
-                    backgroundColor: gradientDaily,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#FAFAFA',
-                    pointBorderColor: '#FCAE2F',
-                    pointBorderWidth: 3,
-                    pointRadius: 4,
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#1D2A2B',
-                        titleColor: '#FCAE2F',
-                        bodyColor: '#FAFAFA',
-                        padding: 12,
-                        callbacks: {
-                            label: function(ct) { return ct.parsed.y.toLocaleString('pl-PL') + ' zł'; }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0, 77, 84, 0.04)' },
-                        ticks: { callback: function(v) { return v.toLocaleString('pl-PL'); } }
-                    },
-                    x: { grid: { display: false } }
-                }
-            }
+            data: { labels: [], datasets: [{ label: 'Przychód Brutto', data: [], borderColor: '#004D54', borderWidth: 3, pointRadius: 4, tension: 0.3 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
         });
         
-        // Weekly Chart Render (Bar - Ember & Evergreen colors)
+        const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+        const monthlyChartInstance = new Chart(ctxMonthly, {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: 'Przychód', data: [], backgroundColor: '#004D54', borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+        
         const ctxWeekly = document.getElementById('weeklyChart').getContext('2d');
         const weeklyChartInstance = new Chart(ctxWeekly, {
             type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Przychód za Tydzień',
-                    data: [],
-                    backgroundColor: '#FCAE2F',
-                    borderRadius: 4,
-                    barPercentage: 0.5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#004D54',
-                        titleColor: '#FCAE2F',
-                        bodyColor: '#FAFAFA',
-                        padding: 12,
-                        callbacks: {
-                            label: function(ct) { return ct.parsed.y.toLocaleString('pl-PL') + ' zł'; }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0, 77, 84, 0.04)' },
-                        ticks: { callback: function(v) { return v.toLocaleString('pl-PL'); } }
-                    },
-                    x: { grid: { display: false } }
-                }
-            }
+            data: { labels: [], datasets: [{ label: 'Przychód za Tydzień', data: [], backgroundColor: '#FCAE2F', borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
         });
-
-        // Dashboard Update Logic
+ 
+        const ctxDayOfWeek = document.getElementById('dayOfWeekChart').getContext('2d');
+        const dayOfWeekChartInstance = new Chart(ctxDayOfWeek, {
+            type: 'bar',
+            data: {
+                labels: ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Niedz'],
+                datasets: [{ label: 'Przychód', data: [0, 0, 0, 0, 0, 0, 0], backgroundColor: '#004D54', borderRadius: 4 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+ 
+        const ctxDiscount = document.getElementById('discountChart').getContext('2d');
+        const discountChartInstance = new Chart(ctxDiscount, {
+            type: 'doughnut',
+            data: { labels: ['Cena standardowa', 'Z rabatem/kodem'], datasets: [{ data: [0, 0], backgroundColor: ['#004D54', '#FCAE2F'], borderWidth: 2 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '60%' }
+        });
+ 
+        // Standardowe punkty cenowe (bez promocji) do wykrywania kodów rabatowych
+        const standardPrices = {
+            'Wersja Fizyczna (Pudełko)': [99, 109, 120, 129, 139],
+            'Wersja Cyfrową (On-line)': [59, 89],
+            'Pakiet (Pudełko + On-line)': [169, 199]
+        };
+ 
+        function isDiscounted(t) {
+            const price = parseFloat(t['Kwota Brutto']) || 0;
+            const qty = parseInt(t['Sztuk']) || 1;
+            if (qty <= 0) return false;
+            const pricePerUnit = price / qty;
+            const stdPrices = standardPrices[t.Wariant];
+            if (!stdPrices) return false;
+            return !stdPrices.some(p => Math.abs(p - pricePerUnit) < 0.2);
+        }
+        
+        const monthNames = {
+            '01': 'Styczeń', '02': 'Luty', '03': 'Marzec', '04': 'Kwiecień', '05': 'Maj', '06': 'Czerwiec',
+            '07': 'Lipiec', '08': 'Sierpień', '09': 'Wrzesień', '10': 'Październik', '11': 'Listopad', '12': 'Grudzień'
+        };
+        function formatMonth(yymm) {
+            const parts = yymm.split('-');
+            const y = parts[0];
+            const m = monthNames[parts[1]] || parts[1];
+            return `${m} ${y}`;
+        }
+ 
         function updateDashboard(startStr, endStr) {
             const startDate = new Date(startStr + 'T00:00:00');
             const endDate = new Date(endStr + 'T23:59:59');
             
-            // Filter
+            const selectedVariant = document.getElementById('variantSelect').value;
+            
             const filtered = rawTransactions.filter(t => {
                 const d = new Date(t.Dzien + 'T00:00:00');
-                return d >= startDate && d <= endDate;
+                const matchesDate = d >= startDate && d <= endDate;
+                const matchesVariant = selectedVariant === 'all' || t.Wariant === selectedVariant;
+                return matchesDate && matchesVariant;
             });
             
-            // Metrics
-            let totalRevenue = 0;
-            let totalSales = 0;
-            let totalOrders = filtered.length;
+            let totalRevenue = 0, totalSales = 0, totalOrders = filtered.length;
+            const varStats = {'Wersja Fizyczna (Pudełko)': { rev: 0, count: 0 }, 'Wersja Cyfrową (On-line)': { rev: 0, count: 0 }, 'Pakiet (Pudełko + On-line)': { rev: 0, count: 0 }};
+            const dailyMap = {}, weeklyMap = {}, monthlyMap = {}, dayOfWeekMap = [0, 0, 0, 0, 0, 0, 0];
             
-            const varStats = {
-                'Wersja Fizyczna (Pudełko)': { rev: 0, count: 0 },
-                'Wersja Cyfrową (On-line)': { rev: 0, count: 0 },
-                'Pakiet (Pudełko + On-line)': { rev: 0, count: 0 }
-            };
+            // Kody rabatowe variables
+            let discountCount = 0;
+            let fullPriceCount = 0;
+            let discountRevenue = 0;
+            let fullPriceRevenue = 0;
+            let totalDiscountSaved = 0;
             
-            const dailyMap = {};
-            const weeklyMap = {};
-            
-            // Group and aggregate
             filtered.forEach(t => {
                 const rev = parseFloat(t['Kwota Brutto']) || 0;
                 const qty = parseInt(t['Sztuk']) || 0;
-                
-                totalRevenue += rev;
-                totalSales += qty;
-                
-                if (varStats[t.Wariant]) {
-                    varStats[t.Wariant].rev += rev;
-                    varStats[t.Wariant].count += qty;
-                }
+                totalRevenue += rev; totalSales += qty;
+                if (varStats[t.Wariant]) { varStats[t.Wariant].rev += rev; varStats[t.Wariant].count += qty; }
                 
                 dailyMap[t.Dzien] = (dailyMap[t.Dzien] || 0) + rev;
+                const week = getISOWeek(t.Dzien); weeklyMap[week] = (weeklyMap[week] || 0) + rev;
+                const month = t.Dzien.substring(0, 7); monthlyMap[month] = (monthlyMap[month] || 0) + rev;
                 
-                const week = getISOWeek(t.Dzien);
-                weeklyMap[week] = (weeklyMap[week] || 0) + rev;
+                const dateObj = new Date(t.Dzien + 'T00:00:00');
+                const rawDay = dateObj.getDay();
+                dayOfWeekMap[rawDay === 0 ? 6 : rawDay - 1] += rev;
+                
+                // Sprawdzenie rabatowości transakcji
+                const isDisc = isDiscounted(t);
+                if (isDisc) {
+                    discountCount++;
+                    discountRevenue += rev;
+                    
+                    const pricePerUnit = rev / (qty || 1);
+                    const stds = standardPrices[t.Wariant] || [];
+                    const validStds = stds.filter(s => s >= pricePerUnit);
+                    const origUnit = validStds.length > 0 ? Math.min(...validStds) : (stds.length > 0 ? Math.max(...stds) : pricePerUnit);
+                    totalDiscountSaved += (origUnit - pricePerUnit) * qty;
+                } else {
+                    fullPriceCount++;
+                    fullPriceRevenue += rev;
+                }
             });
             
-            const avgOrderValue = totalOrders > 0 ? (totalRevenue / totalOrders) : 0;
-            
-            // Render General Metrics
+            // Elementy podsumowania okresu
             document.getElementById('total-revenue').innerText = totalRevenue.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
             document.getElementById('total-orders').innerText = totalOrders.toLocaleString('pl-PL');
             document.getElementById('total-sales').innerText = totalSales.toLocaleString('pl-PL');
-            document.getElementById('avg-order-value').innerText = avgOrderValue.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+            document.getElementById('avg-order-value').innerText = (totalOrders > 0 ? (totalRevenue / totalOrders) : 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
             
-            // Render Variants
+            // Kody rabatowe panel
+            const discountPct = totalOrders > 0 ? (discountCount / totalOrders * 100) : 0;
+            document.getElementById('discount-pct').innerText = discountPct.toFixed(1) + '%';
+            document.getElementById('discount-count-ratio').innerText = `${discountCount} z ${totalOrders} zamówień`;
+            
+            const aovNoCode = fullPriceCount > 0 ? (fullPriceRevenue / fullPriceCount) : 0;
+            const aovWithCode = discountCount > 0 ? (discountRevenue / discountCount) : 0;
+            document.getElementById('aov-no-code').innerText = aovNoCode.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+            document.getElementById('aov-with-code').innerText = aovWithCode.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+            
+            document.getElementById('discount-revenue').innerText = discountRevenue.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+            document.getElementById('discount-saved').innerText = totalDiscountSaved.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+            
+            // Warianty pudełkowe/cyfrowe
             document.getElementById('rev-fizyczna').innerText = varStats['Wersja Fizyczna (Pudełko)'].rev.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
             document.getElementById('count-fizyczna').innerText = varStats['Wersja Fizyczna (Pudełko)'].count.toLocaleString('pl-PL') + ' szt.';
-            
             document.getElementById('rev-cyfrowa').innerText = varStats['Wersja Cyfrową (On-line)'].rev.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
             document.getElementById('count-cyfrowa').innerText = varStats['Wersja Cyfrową (On-line)'].count.toLocaleString('pl-PL') + ' szt.';
-            
             document.getElementById('rev-pakiet').innerText = varStats['Pakiet (Pudełko + On-line)'].rev.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
             document.getElementById('count-pakiet').innerText = varStats['Pakiet (Pudełko + On-line)'].count.toLocaleString('pl-PL') + ' szt.';
             
-            // Sort daily
-            const dailyLabels = Object.keys(dailyMap).sort();
-            const dailyRevenue = dailyLabels.map(k => dailyMap[k]);
+            // Najsilniejsze okresy (Insights)
+            let bestDay = '-', bestDayRev = 0;
+            Object.keys(dailyMap).forEach(d => {
+                if (dailyMap[d] > bestDayRev) {
+                    bestDay = d;
+                    bestDayRev = dailyMap[d];
+                }
+            });
             
-            // Sort weekly
-            const weeklyLabels = Object.keys(weeklyMap).sort();
-            const weeklyRevenue = weeklyLabels.map(k => weeklyMap[k]);
+            let bestWeek = '-', bestWeekRev = 0;
+            Object.keys(weeklyMap).forEach(w => {
+                if (weeklyMap[w] > bestWeekRev) {
+                    bestWeek = w;
+                    bestWeekRev = weeklyMap[w];
+                }
+            });
             
-            // Update Daily Chart
-            dailyChartInstance.data.labels = dailyLabels;
-            dailyChartInstance.data.datasets[0].data = dailyRevenue;
+            document.getElementById('best-day-badge').innerText = bestDay !== '-' ? bestDay : '-';
+            document.getElementById('best-day-rev').innerText = bestDayRev.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+            document.getElementById('best-week-badge').innerText = bestWeek !== '-' ? bestWeek : '-';
+            document.getElementById('best-week-rev').innerText = bestWeekRev.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+ 
+            // Aktualizacja wykresów
+            dailyChartInstance.data.labels = Object.keys(dailyMap).sort();
+            dailyChartInstance.data.datasets[0].data = dailyChartInstance.data.labels.map(k => dailyMap[k]);
             dailyChartInstance.update();
             
-            // Update Weekly Chart
-            weeklyChartInstance.data.labels = weeklyLabels;
-            weeklyChartInstance.data.datasets[0].data = weeklyRevenue;
+            const sortedMonths = Object.keys(monthlyMap).sort();
+            monthlyChartInstance.data.labels = sortedMonths.map(formatMonth);
+            monthlyChartInstance.data.datasets[0].data = sortedMonths.map(k => monthlyMap[k]);
+            monthlyChartInstance.update();
+            
+            weeklyChartInstance.data.labels = Object.keys(weeklyMap).sort();
+            weeklyChartInstance.data.datasets[0].data = weeklyChartInstance.data.labels.map(k => weeklyMap[k]);
             weeklyChartInstance.update();
             
-            // Update Insights
-            let bestDay = 'Brak';
-            let bestDayRev = 0;
-            if (dailyRevenue.length > 0) {
-                const maxDRev = Math.max(...dailyRevenue);
-                bestDayRev = maxDRev;
-                const idx = dailyRevenue.indexOf(maxDRev);
-                bestDay = dailyLabels[idx];
-            }
+            dayOfWeekChartInstance.data.datasets[0].data = dayOfWeekMap;
+            dayOfWeekChartInstance.update();
             
-            let bestWeek = 'Brak';
-            let bestWeekRev = 0;
-            if (weeklyRevenue.length > 0) {
-                const maxWRev = Math.max(...weeklyRevenue);
-                bestWeekRev = maxWRev;
-                const idx = weeklyRevenue.indexOf(maxWRev);
-                bestWeek = weeklyLabels[idx];
-            }
-            
-            document.getElementById('best-day-badge').innerText = bestDay;
-            document.getElementById('best-day-rev').innerText = bestDayRev.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
-            document.getElementById('best-week-badge').innerText = bestWeek;
-            document.getElementById('best-week-rev').innerText = bestWeekRev.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+            discountChartInstance.data.datasets[0].data = [fullPriceRevenue, discountRevenue];
+            discountChartInstance.update();
         }
-
-        // Initialize Dates
-        let sortedDates = rawTransactions.map(t => t.Dzien).sort();
-        let minDateStr = sortedDates.length > 0 ? sortedDates[0] : '';
-        let maxDateStr = sortedDates.length > 0 ? sortedDates[sortedDates.length - 1] : '';
-
-        const startInput = document.getElementById('startDate');
-        const endInput = document.getElementById('endDate');
-        
-        startInput.value = minDateStr;
-        endInput.value = maxDateStr;
-        startInput.min = minDateStr;
-        startInput.max = maxDateStr;
-        endInput.min = minDateStr;
-        endInput.max = maxDateStr;
-
-        // Add event listeners
-        startInput.addEventListener('change', () => {
-            clearButtonActive();
-            updateDashboard(startInput.value, endInput.value);
-        });
-        
-        endInput.addEventListener('change', () => {
-            clearButtonActive();
-            updateDashboard(startInput.value, endInput.value);
-        });
-        
-        function clearButtonActive() {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        }
-        
-        document.getElementById('btn-14d').addEventListener('click', (e) => {
-            clearButtonActive();
-            e.target.classList.add('active');
-            let end = new Date(maxDateStr);
-            let start = new Date(maxDateStr);
-            start.setDate(end.getDate() - 14);
+ 
+        const startInput = document.getElementById('startDate'), endInput = document.getElementById('endDate');
+        const sortedDates = rawTransactions.map(t => t.Dzien).sort();
+        const minDateStr = sortedDates[0], maxDateStr = sortedDates[sortedDates.length - 1];
+        startInput.value = minDateStr; endInput.value = maxDateStr;
+ 
+        function clearButtonActive() { document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active')); }
+        ['14d', '30d', '90d'].forEach(id => document.getElementById('btn-' + id).addEventListener('click', (e) => {
+            clearButtonActive(); e.target.classList.add('active');
+            let end = new Date(maxDateStr + 'T00:00:00'), start = new Date(maxDateStr + 'T00:00:00');
+            start.setDate(end.getDate() - parseInt(id));
             const startStr = start.toISOString().split('T')[0];
-            startInput.value = startStr;
-            endInput.value = maxDateStr;
+            startInput.value = startStr; endInput.value = maxDateStr;
             updateDashboard(startStr, maxDateStr);
-        });
+        }));
+        document.getElementById('btn-all').addEventListener('click', (e) => { clearButtonActive(); e.target.classList.add('active'); startInput.value = minDateStr; endInput.value = maxDateStr; updateDashboard(minDateStr, maxDateStr); });
         
-        document.getElementById('btn-30d').addEventListener('click', (e) => {
-            clearButtonActive();
-            e.target.classList.add('active');
-            let end = new Date(maxDateStr);
-            let start = new Date(maxDateStr);
-            start.setDate(end.getDate() - 30);
-            const startStr = start.toISOString().split('T')[0];
-            startInput.value = startStr;
-            endInput.value = maxDateStr;
-            updateDashboard(startStr, maxDateStr);
-        });
+        startInput.addEventListener('change', () => { clearButtonActive(); updateDashboard(startInput.value, endInput.value); });
+        endInput.addEventListener('change', () => { clearButtonActive(); updateDashboard(startInput.value, endInput.value); });
+        document.getElementById('variantSelect').addEventListener('change', () => { updateDashboard(startInput.value, endInput.value); });
         
-        document.getElementById('btn-all').addEventListener('click', (e) => {
-            clearButtonActive();
-            e.target.classList.add('active');
-            startInput.value = minDateStr;
-            endInput.value = maxDateStr;
-            updateDashboard(minDateStr, maxDateStr);
-        });
-
-        // Initial render
         updateDashboard(minDateStr, maxDateStr);
     </script>
 </body>
@@ -922,7 +953,7 @@ try:
         # 2. Wykonaj commit (jeśli są zmiany)
         commit_check = subprocess.run(['git', 'status', '--porcelain'], capture_output=True, text=True)
         if commit_check.stdout.strip():
-            commit_msg = f"Update report with dynamic filters from {os.path.basename(file_path)} - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+            commit_msg = f"Update report with day-of-week and coupon analysis from {os.path.basename(file_path)} - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
             subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
             print("Zatwierdzono nowe zmiany w Git.")
             
@@ -941,12 +972,3 @@ try:
             print("Brak nowych zmian w raporcie do wysłania.")
 except Exception as e:
     print(f"Błąd podczas automatyzacji Git: {e}")
-
-# --- AUTOMATYCZNE OTWIERANIE W CHROME ---
-try:
-    print("\nOtwieram wygenerowany raport w Google Chrome...")
-    # Otwórz lokalną ścieżkę w Chrome
-    local_url = os.path.abspath('index.html')
-    subprocess.run(['open', '-a', 'Google Chrome', f'file://{local_url}'])
-except Exception as e:
-    print(f"Nie udało się otworzyć raportu w Chrome: {e}")

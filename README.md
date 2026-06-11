@@ -26,8 +26,7 @@ Gdy pobierzesz nowy eksport zamówień i zechcesz zaktualizować raport:
 3. **Gotowe!** Skrypt automatycznie wykona następujące kroki:
    - Wczyta i przeliczy najnowsze dane.
    - Zaktualizuje lokalne pliki `index.html` oraz `Raport_Labirynt_Euphire.html`.
-   - Wyśle aktualizację na Twojego GitHuba, dzięki czemu **link dla marketera natychmiast zaktualizuje się do nowej wersji**.
-   - Automatycznie otworzy podgląd raportu w Google Chrome na Twoim komputerze.
+    - Wyśle aktualizację na Twojego GitHuba, dzięki czemu **link dla marketera natychmiast zaktualizuje się do nowej wersji**.
 
 ### 💡 Ręczne wskazanie pliku (Opcjonalnie)
 Jeśli chcesz przeanalizować konkretny plik, a nie najnowszy, podaj jego nazwę jako argument:
