@@ -286,7 +286,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             box-shadow: var(--card-shadow);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            overflow: hidden;
         }
         
         .card::before {
@@ -295,6 +294,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             top: 0; left: 0; right: 0;
             height: 4px;
             background: #004D54;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
         }
         
         .card:hover {
@@ -424,7 +425,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             border: 1px solid rgba(178, 202, 204, 0.3);
             box-shadow: var(--card-shadow);
             position: relative;
-            overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
@@ -434,6 +434,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             top: 0; left: 0; right: 0;
             height: 4px;
             background: linear-gradient(90deg, #004D54 0%, #FCAE2F 100%);
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
         }
         
         .variant-card:hover {
