@@ -86,6 +86,8 @@ for _, row in df.iterrows():
     lab_variant = TARGET_LABIRYNT.get(name, '')
     author = extract_author(name)
     is_mosak = 'Mosak' in name
+    is_debarbaro_terapeuta = 'Jak być dobrym psychoterapeutą dla samego siebie' in name
+    is_walkiewicz = 'Walkiewicz' in name
     
     records.append({
         'd': dzien,
@@ -96,7 +98,9 @@ for _, row in df.iterrows():
         'isL': is_lab,
         'vL': lab_variant,
         'a': author,
-        'isM': is_mosak
+        'isM': is_mosak,
+        'isB': is_debarbaro_terapeuta,
+        'isW': is_walkiewicz
     })
 
 raw_transactions_json = json.dumps(records, ensure_ascii=False)
@@ -226,7 +230,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
         .nav-tabs {
             display: flex;
-            gap: 0.75rem;
+            gap: 0.6rem;
             flex-wrap: wrap;
         }
 
@@ -236,15 +240,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             -webkit-backdrop-filter: blur(12px);
             border: 1.5px solid rgba(178, 202, 204, 0.6);
             border-radius: 12px;
-            padding: 1rem 1.75rem;
+            padding: 0.85rem 1.4rem;
             font-family: var(--font-headings);
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             color: #004D54;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.5rem;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 6px 16px rgba(0, 46, 50, 0.08);
         }
@@ -269,7 +273,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .tab-icon {
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             transition: transform 0.2s ease;
         }
         
@@ -713,22 +717,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             top: 0.65rem;
         }
         
-        .badge {
-            background: rgba(0, 77, 84, 0.08);
-            color: #004D54;
-            padding: 3px 10px;
-            border-radius: 6px;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        
-        .badge-rev {
-            font-family: var(--font-data);
-            font-weight: 700;
-            color: #004D54;
-        }
-
         .hero-banner {
             background: linear-gradient(135deg, #00383D 0%, #001F22 100%);
             color: #ffffff;
@@ -794,8 +782,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 margin-top: -1.8rem;
             }
             .nav-tab-btn {
-                padding: 0.75rem 1rem;
-                font-size: 0.85rem;
+                padding: 0.75rem 0.9rem;
+                font-size: 0.8rem;
                 flex: 1 1 auto;
                 justify-content: center;
             }
@@ -873,7 +861,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 <span class="tab-icon">🎓</span> Szkolenia Ogółem
             </button>
             <button class="nav-tab-btn" data-tab="mosak">
-                <span class="tab-icon">👤</span> Szkolenie: Piotr Mosak
+                <span class="tab-icon">👤</span> Piotr Mosak
+            </button>
+            <button class="nav-tab-btn" data-tab="debarbaro">
+                <span class="tab-icon">👨‍⚕️</span> Prof. de Barbaro („Dobry Terapeuta”)
+            </button>
+            <button class="nav-tab-btn" data-tab="walkiewicz">
+                <span class="tab-icon">🎤</span> Jacek Walkiewicz („Pełna MOC”)
             </button>
         </div>
     </div>
@@ -913,62 +907,32 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <h2 class="section-title">🎴 Podsumowanie Wyników: Labirynt Rozmów</h2>
             <div class="summary-grid">
                 <div class="card">
-                    <h3>Całkowity Przychód
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Łączna kwota brutto sprzedanych wariantów gry po rabatach.</span>
-                        </span>
-                    </h3>
+                    <h3>Całkowity Przychód</h3>
                     <div class="value accent data-value" id="lab-total-revenue">0,00 zł</div>
                     <p>Uwzględnia zniżki i rabaty</p>
                 </div>
                 <div class="card">
-                    <h3>Liczba Zamówień
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Liczba unikalnych transakcji zakupu gry.</span>
-                        </span>
-                    </h3>
+                    <h3>Liczba Zamówień</h3>
                     <div class="value data-value" id="lab-total-orders">0</div>
                     <p>Potwierdzone transakcje</p>
                 </div>
                 <div class="card">
-                    <h3>Sprzedano Sztuk
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Łączna liczba egzemplarzy (fizycznych i cyfrowych).</span>
-                        </span>
-                    </h3>
+                    <h3>Sprzedano Sztuk</h3>
                     <div class="value data-value" id="lab-total-sales">0</div>
                     <p>Wszystkie warianty</p>
                 </div>
                 <div class="card">
-                    <h3>Średni Koszyk (AOV)
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Średnia wartość zamówienia (Przychód / Zamówienia).</span>
-                        </span>
-                    </h3>
+                    <h3>Średni Koszyk (AOV)</h3>
                     <div class="value data-value" id="lab-aov">0,00 zł</div>
                     <p>Przeciętne zamówienie</p>
                 </div>
                 <div class="card">
-                    <h3>Najlepszy Dzień
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Dzień z najwyższym dziennym przychodem ze sprzedaży gry.</span>
-                        </span>
-                    </h3>
+                    <h3>Najlepszy Dzień</h3>
                     <div class="value data-value" style="font-size: 1.4rem;" id="lab-best-day-badge">-</div>
                     <p id="lab-best-day-rev">0,00 zł</p>
                 </div>
                 <div class="card">
-                    <h3>Najlepszy Tydzień
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Tydzień (rok-tydzień) z rekordowym przychodem.</span>
-                        </span>
-                    </h3>
+                    <h3>Najlepszy Tydzień</h3>
                     <div class="value data-value" style="font-size: 1.4rem;" id="lab-best-week-badge">-</div>
                     <p id="lab-best-week-rev">0,00 zł</p>
                 </div>
@@ -1005,7 +969,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- CHARTS ROW 1 -->
+            <!-- CHARTS -->
             <div class="charts-grid-row1">
                 <div class="chart-container">
                     <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Dzienna Dynamika Przychodu (zł)</h3>
@@ -1017,7 +981,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- CHARTS ROW 2 -->
             <div class="charts-grid-row2">
                 <div class="chart-container">
                     <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Sprzedaż Miesięczna (zł)</h3>
@@ -1033,13 +996,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- INSIGHTS -->
             <div class="insights">
                 <h2>📊 Rekomendacje & Wnioski Analityczne: Labirynt Rozmów</h2>
                 <ul>
-                    <li><strong>Wersja Fizyczna dominuje przychody:</strong> Wersja karciana w pudełku generuje przeważającą większość przychodów produktu. Klienci poszukują namacalnego rekwizytu do budowania relacji.</li>
-                    <li><strong>Wygodna konwersja na Pakiety:</strong> Pakiet (Pudełko + On-line) stanowi bardzo atrakcyjną opcję up-sell o wysokim AOV. Warto eksponować ten wariant podczas checkoutu.</li>
-                    <li><strong>Szczyty aktywności:</strong> Najwyższa konwersja występuje w środku tygodnia oraz w godzinach wieczornych, co warto uwzględnić w harmonogramie kampanii reklamowych.</li>
+                    <li><strong>Wersja Fizyczna dominuje przychody:</strong> Karciana wersja fizyczna stanowi ponad 78% sprzedaży gry.</li>
+                    <li><strong>Up-sell na Pakiety:</strong> Wariant łączony (Pudełko + On-line) buduje wysoki koszyk AOV.</li>
+                    <li><strong>Szczyty aktywności:</strong> Największa konwersja zachodzi w środku tygodnia i w godzinach wieczornych.</li>
                 </ul>
             </div>
         </div>
@@ -1088,62 +1050,32 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <h2 class="section-title">🎓 Podsumowanie Wyników: Szkolenia On-line i Pakiety</h2>
             <div class="summary-grid">
                 <div class="card">
-                    <h3>Łączny Przychód ze Szkoleń
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Łączna kwota brutto ze sprzedaży wszystkich szkoleń online i pakietów.</span>
-                        </span>
-                    </h3>
+                    <h3>Łączny Przychód ze Szkoleń</h3>
                     <div class="value accent data-value" id="szk-total-revenue">0,00 zł</div>
                     <p>Uwzględnia wszystkie kursy</p>
                 </div>
                 <div class="card">
-                    <h3>Zamówienia Szkoleń
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Liczba unikalnych transakcji zakupu kursów.</span>
-                        </span>
-                    </h3>
+                    <h3>Zamówienia Szkoleń</h3>
                     <div class="value data-value" id="szk-total-orders">0</div>
                     <p>Potwierdzone zakupy</p>
                 </div>
                 <div class="card">
-                    <h3>Sprzedane Kursy (Sztuk)
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Łączna liczba sprzedanych kursów i pakietów.</span>
-                        </span>
-                    </h3>
+                    <h3>Sprzedane Kursy (Sztuk)</h3>
                     <div class="value data-value" id="szk-total-sales">0</div>
                     <p>Suma wolumenu</p>
                 </div>
                 <div class="card">
-                    <h3>Średni Koszyk (AOV)
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Przeciętny przychód na jedno zamówienie kursowe.</span>
-                        </span>
-                    </h3>
+                    <h3>Średni Koszyk (AOV)</h3>
                     <div class="value data-value" id="szk-aov">0,00 zł</div>
                     <p>Średnia transakcja</p>
                 </div>
                 <div class="card">
-                    <h3>Bestsellerowe Szkolenie
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Szkolenie generujące największy przychód.</span>
-                        </span>
-                    </h3>
+                    <h3>Bestsellerowe Szkolenie</h3>
                     <div class="value data-value" style="font-size: 1.15rem; line-height: 1.3;" id="szk-top-course">-</div>
                     <p id="szk-top-course-rev">0,00 zł</p>
                 </div>
                 <div class="card">
-                    <h3>Top Wykładowca
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Autor z największym łącznym udziałem w przychodach.</span>
-                        </span>
-                    </h3>
+                    <h3>Top Wykładowca</h3>
                     <div class="value data-value gold" style="font-size: 1.25rem;" id="szk-top-author">-</div>
                     <p id="szk-top-author-rev">0,00 zł</p>
                 </div>
@@ -1151,11 +1083,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
             <!-- TOP AUTHORS CARDS -->
             <h2 class="section-title">🏆 Najpopularniejsi Wykładowcy EUPHIRE</h2>
-            <div class="variant-grid" id="szk-authors-cards-container">
-                <!-- Generowane dynamicznie przez JS -->
-            </div>
+            <div class="variant-grid" id="szk-authors-cards-container"></div>
 
-            <!-- CHARTS ROW 1 -->
+            <!-- CHARTS -->
             <div class="charts-grid-row1">
                 <div class="chart-container">
                     <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Dzienna Dynamika Przychodu ze Szkoleń (zł)</h3>
@@ -1167,7 +1097,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- CHARTS ROW 2 -->
             <div class="charts-grid-row2">
                 <div class="chart-container">
                     <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Udział Wykładowców w Przychodzie (%)</h3>
@@ -1198,19 +1127,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                             <th>Udział w Sprzedaży</th>
                         </tr>
                     </thead>
-                    <tbody id="szk-courses-table-body">
-                        <!-- Generowane dynamicznie przez JS -->
-                    </tbody>
+                    <tbody id="szk-courses-table-body"></tbody>
                 </table>
             </div>
 
-            <!-- INSIGHTS -->
             <div class="insights">
                 <h2>📈 Strategiczne Wnioski dla Sprzedaży Szkoleń</h2>
                 <ul>
-                    <li><strong>Fundament przychodowy – dr Ewa Woydyłło-Osiatyńska:</strong> Szkolenie dotyczące depresji oraz problemów alkoholowych generuje ponad 40% całkowitego przychodu ze wszystkich szkoleń online.</li>
-                    <li><strong>Popularność Profesorów (de Barbaro & Bralczyk):</strong> Duety i pakiety łączące psychoterapię oraz komunikację (prof. de Barbaro i prof. Bralczyk) osiągają wyższy AOV i świetne wskaźniki cross-sell.</li>
-                    <li><strong>Potencjał Nowych Formatów:</strong> Dedykowane szkolenia z psychologii relacji (w tym nowość z Piotrem Mosakiem) stanowią naturalne uzupełnienie oferty produktowej Euphire.</li>
+                    <li><strong>Woydyłło-Osiatyńska liderem przychodów:</strong> Kurs o depresji generuje ponad 40% całkowitej sprzedaży szkoleń.</li>
+                    <li><strong>Duety Profesorów:</strong> Pakiety łączące psychoterapię (de Barbaro) i komunikację (Bralczyk) osiągają świetny wskaźnik AOV.</li>
                 </ul>
             </div>
         </div>
@@ -1224,7 +1149,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <div class="hero-banner">
                 <span class="hero-badge">NOWOŚĆ W OFERCIE • PREMIERA LIPIEC 2026</span>
                 <h2>Piotr Mosak – „Fundamenty dobrego związku”</h2>
-                <p>Szkolenie on-line dedykowane relacjom, budowaniu więzi oraz rozwiązywaniu kryzysów w związku. Poniższy raport prezentuje szczegółową analizę sprzedażową kursu od pierwszego dnia premiery (23 lipca 2026 r.).</p>
+                <p>Szkolenie on-line dedykowane relacjom, budowaniu więzi oraz rozwiązywaniu kryzysów w związku. Analiza sprzedażowa od dnia premiery (23 lipca 2026 r.).</p>
             </div>
 
             <div class="filter-container">
@@ -1245,68 +1170,38 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <h2 class="section-title">👤 Wyniki Sprzedaży Kursu Piotra Mosaka</h2>
             <div class="summary-grid">
                 <div class="card">
-                    <h3>Przychód z Kursu
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Łączny przychód brutto z kursu Piotra Mosaka od premiery.</span>
-                        </span>
-                    </h3>
+                    <h3>Przychód z Kursu</h3>
                     <div class="value accent data-value" id="mos-total-revenue">0,00 zł</div>
                     <p>Faktyczne wpłaty klientów</p>
                 </div>
                 <div class="card">
-                    <h3>Liczba Zamówień
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Liczba potwierdzonych zamówień kursu.</span>
-                        </span>
-                    </h3>
+                    <h3>Liczba Zamówień</h3>
                     <div class="value data-value" id="mos-total-orders">0</div>
                     <p>Liczba kupujących</p>
                 </div>
                 <div class="card">
-                    <h3>Sprzedane Sztuki
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Łączna liczba dostępów do kursu.</span>
-                        </span>
-                    </h3>
+                    <h3>Sprzedane Sztuki</h3>
                     <div class="value data-value" id="mos-total-sales">0</div>
                     <p>Dostępy online</p>
                 </div>
                 <div class="card">
-                    <h3>Średnia Cena (AOV)
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Średnia wartość kwoty zapłaconej za kurs po rabatach.</span>
-                        </span>
-                    </h3>
+                    <h3>Średnia Cena (AOV)</h3>
                     <div class="value data-value" id="mos-aov">0,00 zł</div>
                     <p>Średnio na zamówienie</p>
                 </div>
                 <div class="card">
-                    <h3>Średni Przychód Dzienny
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Średni dzienny przychód od momentu startu sprzedaży.</span>
-                        </span>
-                    </h3>
+                    <h3>Średni Przychód Dzienny</h3>
                     <div class="value data-value gold" id="mos-daily-avg">0,00 zł</div>
                     <p>Od premiery (23.07)</p>
                 </div>
                 <div class="card">
-                    <h3>Najlepszy Dzień
-                        <span class="info-tooltip-container">
-                            <span class="info-icon">i</span>
-                            <span class="tooltip-text">Dzień o najwyższym wolumenie zamówień.</span>
-                        </span>
-                    </h3>
+                    <h3>Najlepszy Dzień</h3>
                     <div class="value data-value" style="font-size: 1.3rem;" id="mos-best-day">-</div>
                     <p id="mos-best-day-rev">0,00 zł</p>
                 </div>
             </div>
 
-            <!-- CHARTS ROW 1 -->
+            <!-- CHARTS -->
             <div class="charts-grid-row1">
                 <div class="chart-container">
                     <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Dzienna Sprzedaż i Przychód Skumulowany Od Premiery</h3>
@@ -1333,20 +1228,210 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                             <th>Poziom Zniżki / Kodu</th>
                         </tr>
                     </thead>
-                    <tbody id="mos-table-body">
-                        <!-- Generowane dynamicznie przez JS -->
-                    </tbody>
+                    <tbody id="mos-table-body"></tbody>
                 </table>
             </div>
 
-            <!-- STRATEGIC RECOMMENDATIONS FOR MOSAK -->
             <div class="insights">
                 <h2>💡 Rekomendacje Analityczne i Strategia Skalowania Sprzedaży</h2>
                 <ul>
-                    <li><strong>Dedykowana Synergia z „Labiryntem Rozmów”:</strong> Kurs Piotra Mosaka „Fundamenty dobrego związku” i gra karciana „Labirynt Rozmów” dzielą tę samą grupę docelową (pary pragnące pogłębić relację). Sugerujemy bezpośredni cross-sell na podziękowaniu za zakup (Thank You Page) gry oraz w mailach post-purchase.</li>
-                    <li><strong>Rekomendowany Pakiet „Dobry Związek”:</strong> Stworzenie w sklepie nowego pakietu łączonego: <em>Gra Labirynt Rozmów (Pudełko) + Kurs Piotra Mosaka</em> w stałej cenie pakietowej 249 zł. Pozwoli to podnieść AOV transakcji o ponad 60%.</li>
-                    <li><strong>Kampania Newsletterowa do Bazy Klinków:</strong> Dotychczasowi nabywcy gier i szkoleń psychologicznych stanowią idealną grupę do wysyłki dedykowanego mailingera z krótkim wideo-zwiastunem Piotra Mosaka.</li>
-                    <li><strong>Promocja w Social Media & Rolki:</strong> Wykorzystanie atrakcyjnych 30-sekundowych fragmentów wywiadów z Piotrem Mosakiem w kampaniach Meta Ads (FB/IG) z celem na konwersję zakupu.</li>
+                    <li><strong>Synergia z „Labiryntem Rozmów”:</strong> Rekomendujemy cross-sell z grą dla par na Thank You Page oraz w sekwencji e-mail po zakupie.</li>
+                    <li><strong>Stworzenie Pakietu „Dobry Związek”:</strong> Dodanie w sklepie pakietu łączonego (*Gra Labirynt Rozmów + Kurs Piotra Mosaka*) podniesie AOV o ponad 60%.</li>
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 4: PROF. BOGDAN DE BARBARO - DOBRY TERAPEUTA -->
+        <!-- ========================================== -->
+        <div class="tab-pane" id="pane-debarbaro">
+            
+            <div class="hero-banner">
+                <span class="hero-badge">BESTSELLER PSYCHOTERAPII</span>
+                <h2>Prof. Bogdan de Barbaro – „Jak być dobrym psychoterapeutą dla samego siebie?”</h2>
+                <p>Jeden z największych bestsellerów platformy EUPHIRE. Przystępny, mądry i głęboki kurs uczy autorefleksji, przepracowywania konfliktów wewnętrznych oraz higieny psychicznej w oparciu o dorobek profesorski.</p>
+            </div>
+
+            <div class="filter-container">
+                <div class="filter-group">
+                    <span class="filter-label">Zakres dat:</span>
+                    <input type="date" id="barStartDate" class="filter-input">
+                    <span class="filter-label" style="font-weight: normal; color: #555;">do</span>
+                    <input type="date" id="barEndDate" class="filter-input">
+                </div>
+                <div class="btn-group">
+                    <button class="filter-btn" id="bar-btn-14d">Ostatnie 14 dni</button>
+                    <button class="filter-btn" id="bar-btn-30d">Ostatnie 30 dni</button>
+                    <button class="filter-btn" id="bar-btn-90d">Ostatnie 90 dni</button>
+                    <button class="filter-btn active" id="bar-btn-all">Cały okres</button>
+                </div>
+            </div>
+            
+            <h2 class="section-title">👨‍⚕️ Wyniki Sprzedaży: Prof. de Barbaro – „Dobry Terapeuta”</h2>
+            <div class="summary-grid">
+                <div class="card">
+                    <h3>Całkowity Przychód</h3>
+                    <div class="value accent data-value" id="bar-total-revenue">0,00 zł</div>
+                    <p>Przychód brutto ze szkolenia</p>
+                </div>
+                <div class="card">
+                    <h3>Liczba Zamówień</h3>
+                    <div class="value data-value" id="bar-total-orders">0</div>
+                    <p>Sprzedanych dostępów</p>
+                </div>
+                <div class="card">
+                    <h3>Sprzedane Sztuki</h3>
+                    <div class="value data-value" id="bar-total-sales">0</div>
+                    <p>Łączny wolumen</p>
+                </div>
+                <div class="card">
+                    <h3>Średni Koszyk (AOV)</h3>
+                    <div class="value data-value" id="bar-aov">0,00 zł</div>
+                    <p>Średnia cena transakcyjna</p>
+                </div>
+                <div class="card">
+                    <h3>Najlepszy Dzień</h3>
+                    <div class="value data-value" style="font-size: 1.3rem;" id="bar-best-day">-</div>
+                    <p id="bar-best-day-rev">0,00 zł</p>
+                </div>
+                <div class="card">
+                    <h3>Udział w Szkoleniach</h3>
+                    <div class="value data-value gold" id="bar-share-perc">0%</div>
+                    <p>Wielkość udziału w przychodach</p>
+                </div>
+            </div>
+
+            <!-- CHARTS -->
+            <div class="charts-grid-row1">
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Dzienna Dynamika Przychodu (zł)</h3>
+                    <div style="height: 310px;"><canvas id="barChartDaily"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Przychód Skumulowany (zł)</h3>
+                    <div style="height: 310px;"><canvas id="barChartCumulative"></canvas></div>
+                </div>
+            </div>
+
+            <div class="charts-grid-row2">
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Sprzedaż Miesięczna (zł)</h3>
+                    <div style="height: 310px;"><canvas id="barChartMonthly"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Struktura Poziomów Cenowych (zł)</h3>
+                    <div style="height: 310px;"><canvas id="barChartPriceDist"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Sprzedaż wg Dni Tygodnia</h3>
+                    <div style="height: 310px;"><canvas id="barChartDayOfWeek"></canvas></div>
+                </div>
+            </div>
+
+            <div class="insights">
+                <h2>📊 Strategiczne Wnioski i Analityka: Prof. de Barbaro</h2>
+                <ul>
+                    <li><strong>Produkt typu Evergreen:</strong> Szkolenie generuje stabilny przychód w skali całego roku (ponad 71 tys. zł przychodów brutto).</li>
+                    <li><strong>Świetny próg cenowy:</strong> Najwyższa konwersja zachodzi przy progu 199 zł oraz promocyjnym 149 zł.</li>
+                    <li><strong>Budowa Kompendiów:</strong> Łączenie prof. de Barbaro w pakiety z dr Woydyłło-Osiatyńską i prof. Bralczykiem przynosi najwyższy średni AOV.</li>
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 5: JACEK WALKIEWICZ - PEŁNA MOC PRZEMAWIANIA -->
+        <!-- ========================================== -->
+        <div class="tab-pane" id="pane-walkiewicz">
+            
+            <div class="hero-banner">
+                <span class="hero-badge">REKORDOWY AOV • PREMIUM HIGH-TICKET</span>
+                <h2>Jacek Walkiewicz – „Pełna MOC Przemawiania”</h2>
+                <p>Flagowe szkolenie autorskie kultowego mówcy motywacyjnego Jacka Walkiewicza. Produkt charakteryzuje się najwyższym średnim koszykiem zakupowym (AOV > 308 zł) w całym sklepie EUPHIRE.</p>
+            </div>
+
+            <div class="filter-container">
+                <div class="filter-group">
+                    <span class="filter-label">Zakres dat:</span>
+                    <input type="date" id="walStartDate" class="filter-input">
+                    <span class="filter-label" style="font-weight: normal; color: #555;">do</span>
+                    <input type="date" id="walEndDate" class="filter-input">
+                </div>
+                <div class="btn-group">
+                    <button class="filter-btn" id="wal-btn-14d">Ostatnie 14 dni</button>
+                    <button class="filter-btn" id="wal-btn-30d">Ostatnie 30 dni</button>
+                    <button class="filter-btn" id="wal-btn-90d">Ostatnie 90 dni</button>
+                    <button class="filter-btn active" id="wal-btn-all">Cały okres</button>
+                </div>
+            </div>
+            
+            <h2 class="section-title">🎤 Wyniki Sprzedaży: Jacek Walkiewicz – „Pełna MOC”</h2>
+            <div class="summary-grid">
+                <div class="card">
+                    <h3>Całkowity Przychód</h3>
+                    <div class="value accent data-value" id="wal-total-revenue">0,00 zł</div>
+                    <p>Przychód brutto ze szkolenia</p>
+                </div>
+                <div class="card">
+                    <h3>Liczba Zamówień</h3>
+                    <div class="value data-value" id="wal-total-orders">0</div>
+                    <p>Transakcje zakupu</p>
+                </div>
+                <div class="card">
+                    <h3>Sprzedane Sztuki</h3>
+                    <div class="value data-value" id="wal-total-sales">0</div>
+                    <p>Dostępy do kursu</p>
+                </div>
+                <div class="card">
+                    <h3>Średni Koszyk (AOV)</h3>
+                    <div class="value data-value gold" id="wal-aov">0,00 zł</div>
+                    <p>Najwyższy AOV na platformie!</p>
+                </div>
+                <div class="card">
+                    <h3>Najlepszy Dzień</h3>
+                    <div class="value data-value" style="font-size: 1.3rem;" id="wal-best-day">-</div>
+                    <p id="wal-best-day-rev">0,00 zł</p>
+                </div>
+                <div class="card">
+                    <h3>Procent Cen Premium</h3>
+                    <div class="value data-value" id="wal-premium-perc">0%</div>
+                    <p>Zamówienia powyżej 299 zł</p>
+                </div>
+            </div>
+
+            <!-- CHARTS -->
+            <div class="charts-grid-row1">
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Dzienna Dynamika Przychodu (zł)</h3>
+                    <div style="height: 310px;"><canvas id="walChartDaily"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Przychód Skumulowany (zł)</h3>
+                    <div style="height: 310px;"><canvas id="walChartCumulative"></canvas></div>
+                </div>
+            </div>
+
+            <div class="charts-grid-row2">
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Sprzedaż Miesięczna (zł)</h3>
+                    <div style="height: 310px;"><canvas id="walChartMonthly"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Struktura Poziomów Cenowych (zł)</h3>
+                    <div style="height: 310px;"><canvas id="walChartPriceDist"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.05rem; color: #004D54;">Sprzedaż wg Dni Tygodnia</h3>
+                    <div style="height: 310px;"><canvas id="walChartDayOfWeek"></canvas></div>
+                </div>
+            </div>
+
+            <div class="insights">
+                <h2>💡 Rekomendacje i Strategia Premium: Jacek Walkiewicz</h2>
+                <ul>
+                    <li><strong>Pozycja High-Ticket:</strong> Klienci bez oporów kupują kurs w cenie nominalnej 399 zł lub promocyjnej 299,25 zł.</li>
+                    <li><strong>Rekomendowany Pakiet „Mistrzowie Przemawiania”:</strong> Połączenie w pakiecie szkolenia Jacka Walkiewicza z kursami prof. Jerzego Bralczyka (*„Jak dobrze mówić?”*) pozwoli wygenerować pakiet z koszykiem > 499 zł.</li>
                 </ul>
             </div>
         </div>
@@ -1357,7 +1442,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <script>
         const rawTransactions = {{RAW_TRANSACTIONS_JSON}};
         
-        // Pomocnicze formatowanie walut i dat
         const formatPLN = (val) => val.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
         const formatMonth = (monthStr) => {
             const [y, m] = monthStr.split('-');
@@ -1366,8 +1450,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         };
         const getDayOfWeekIndex = (dateStr) => {
             const d = new Date(dateStr + 'T00:00:00');
-            let day = d.getDay(); // 0 is Sun
-            return day === 0 ? 6 : day - 1; // 0 Mon, 6 Sun
+            let day = d.getDay();
+            return day === 0 ? 6 : day - 1;
         };
         const getWeekNumberStr = (dateStr) => {
             const d = new Date(dateStr + 'T00:00:00');
@@ -1378,7 +1462,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             return `${dYear}-W${week < 10 ? '0' + week : week}`;
         };
 
-        // Paleta kolorów EUPHIRE
         const colors = {
             primary: '#004D54',
             primaryLight: 'rgba(0, 77, 84, 0.15)',
@@ -1390,7 +1473,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             palette: ['#004D54', '#FCAE2F', '#007A87', '#D97706', '#002E32', '#B2CACC', '#0284C7', '#7C3AED', '#EC4899', '#10B981']
         };
 
-        // Chart.js global config defaults
         Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
         Chart.defaults.color = '#2F3E40';
 
@@ -1500,9 +1582,85 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
+        // ----------------------------------------------------
+        // INITIALIZE DE BARBARO TERAPEUTA CHARTS
+        // ----------------------------------------------------
+        const ctxBarDaily = document.getElementById('barChartDaily').getContext('2d');
+        const barChartDaily = new Chart(ctxBarDaily, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'Przychód (zł)', data: [], borderColor: colors.primary, backgroundColor: colors.primaryLight, fill: true, tension: 0.3, pointRadius: 2 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const ctxBarCumulative = document.getElementById('barChartCumulative').getContext('2d');
+        const barChartCumulative = new Chart(ctxBarCumulative, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'Skumulowany (zł)', data: [], borderColor: colors.accent, backgroundColor: colors.accentLight, fill: true, tension: 0.3, pointRadius: 0, borderWidth: 3 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const ctxBarMonthly = document.getElementById('barChartMonthly').getContext('2d');
+        const barChartMonthly = new Chart(ctxBarMonthly, {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: 'Przychód (zł)', data: [], backgroundColor: colors.primary, borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const ctxBarPriceDist = document.getElementById('barChartPriceDist').getContext('2d');
+        const barChartPriceDist = new Chart(ctxBarPriceDist, {
+            type: 'doughnut',
+            data: { labels: ['Cena standardowa (199 zł)', 'Promocja (149 zł)', 'Kod rabatowy (179,10 zł)', 'Rabaty -50% (99,50 zł)', 'Inne'], datasets: [{ data: [0,0,0,0,0], backgroundColor: colors.palette }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
+        });
+
+        const ctxBarDayOfWeek = document.getElementById('barChartDayOfWeek').getContext('2d');
+        const barChartDayOfWeek = new Chart(ctxBarDayOfWeek, {
+            type: 'bar',
+            data: { labels: ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'], datasets: [{ label: 'Przychód (zł)', data: [0,0,0,0,0,0,0], backgroundColor: colors.accent, borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
 
         // ----------------------------------------------------
-        // DASHBOARD UPDATE LOGIC - TAB 1: LABIRYNT
+        // INITIALIZE WALKIEWICZ CHARTS
+        // ----------------------------------------------------
+        const ctxWalDaily = document.getElementById('walChartDaily').getContext('2d');
+        const walChartDaily = new Chart(ctxWalDaily, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'Przychód (zł)', data: [], borderColor: colors.primary, backgroundColor: colors.primaryLight, fill: true, tension: 0.3, pointRadius: 2 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const ctxWalCumulative = document.getElementById('walChartCumulative').getContext('2d');
+        const walChartCumulative = new Chart(ctxWalCumulative, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'Skumulowany (zł)', data: [], borderColor: colors.accent, backgroundColor: colors.accentLight, fill: true, tension: 0.3, pointRadius: 0, borderWidth: 3 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const ctxWalMonthly = document.getElementById('walChartMonthly').getContext('2d');
+        const walChartMonthly = new Chart(ctxWalMonthly, {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: 'Przychód (zł)', data: [], backgroundColor: colors.primary, borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const ctxWalPriceDist = document.getElementById('walChartPriceDist').getContext('2d');
+        const walChartPriceDist = new Chart(ctxWalPriceDist, {
+            type: 'doughnut',
+            data: { labels: ['Rabat 25% (299,25 zł)', 'Cena Pełna (399 zł)', 'Cena Pro (254,25 zł)', 'Rabat VIP (339 zł)', 'Inne'], datasets: [{ data: [0,0,0,0,0], backgroundColor: colors.palette }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
+        });
+
+        const ctxWalDayOfWeek = document.getElementById('walChartDayOfWeek').getContext('2d');
+        const walChartDayOfWeek = new Chart(ctxWalDayOfWeek, {
+            type: 'bar',
+            data: { labels: ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'], datasets: [{ label: 'Przychód (zł)', data: [0,0,0,0,0,0,0], backgroundColor: colors.accent, borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+
+        // ----------------------------------------------------
+        // UPDATE LOGIC - TAB 1: LABIRYNT
         // ----------------------------------------------------
         function updateLabiryntDashboard() {
             const variantFilter = document.getElementById('labVariantSelect').value;
@@ -1517,7 +1675,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 return true;
             });
 
-            // KPI Calculations
             let totalRev = 0, totalOrders = filtered.length, totalSales = 0;
             let vBoxRev = 0, vBoxOrders = 0, vBoxSales = 0;
             let vDigRev = 0, vDigOrders = 0, vDigSales = 0;
@@ -1535,7 +1692,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 else if (t.vL.includes('Pakiet')) { vBunRev += t.k; vBunOrders++; vBunSales += t.s; }
 
                 dailyMap[t.d] = (dailyMap[t.d] || 0) + t.k;
-
                 const monthKey = t.d.substring(0, 7);
                 monthlyMap[monthKey] = (monthlyMap[monthKey] || 0) + t.k;
 
@@ -1551,7 +1707,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             document.getElementById('lab-total-sales').innerText = totalSales.toLocaleString('pl-PL');
             document.getElementById('lab-aov').innerText = totalOrders > 0 ? formatPLN(totalRev / totalOrders) : '0,00 zł';
 
-            // Variants Cards
             document.getElementById('lab-v-box-rev').innerText = formatPLN(vBoxRev);
             document.getElementById('lab-v-box-orders').innerText = vBoxOrders;
             document.getElementById('lab-v-box-sales').innerText = vBoxSales;
@@ -1567,7 +1722,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             document.getElementById('lab-v-bundle-sales').innerText = vBunSales;
             document.getElementById('lab-v-bundle-share').innerText = totalRev > 0 ? ((vBunRev / totalRev) * 100).toFixed(1) + '%' : '0%';
 
-            // Best day / Best week
             let bestDay = '-', bestDayRev = 0;
             Object.keys(dailyMap).forEach(d => { if (dailyMap[d] > bestDayRev) { bestDay = d; bestDayRev = dailyMap[d]; } });
             let bestWeek = '-', bestWeekRev = 0;
@@ -1578,7 +1732,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             document.getElementById('lab-best-week-badge').innerText = bestWeek;
             document.getElementById('lab-best-week-rev').innerText = formatPLN(bestWeekRev);
 
-            // Update charts
             const sortedDays = Object.keys(dailyMap).sort();
             labChartDaily.data.labels = sortedDays;
             labChartDaily.data.datasets[0].data = sortedDays.map(k => dailyMap[k]);
@@ -1605,7 +1758,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         // ----------------------------------------------------
-        // DASHBOARD UPDATE LOGIC - TAB 2: SZKOLENIA
+        // UPDATE LOGIC - TAB 2: SZKOLENIA OGÓŁEM
         // ----------------------------------------------------
         function updateSzkoleniaDashboard() {
             const authorFilter = document.getElementById('szkAuthorSelect').value;
@@ -1613,7 +1766,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             const endDate = document.getElementById('szkEndDate').value;
 
             const filtered = rawTransactions.filter(t => {
-                if (t.isL) return false; // Tylko szkolenia i kursy
+                if (t.isL) return false;
                 if (authorFilter !== 'all' && t.a !== authorFilter) return false;
                 if (startDate && t.d < startDate) return false;
                 if (endDate && t.d > endDate) return false;
@@ -1653,7 +1806,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             document.getElementById('szk-total-sales').innerText = totalSales.toLocaleString('pl-PL');
             document.getElementById('szk-aov').innerText = totalOrders > 0 ? formatPLN(totalRev / totalOrders) : '0,00 zł';
 
-            // Top course & Top author
             const sortedCourses = Object.values(courseMap).sort((a, b) => b.rev - a.rev);
             const sortedAuthors = Object.values(authorMap).sort((a, b) => b.rev - a.rev);
 
@@ -1673,7 +1825,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 document.getElementById('szk-top-author-rev').innerText = '0,00 zł';
             }
 
-            // Render Top Authors Cards
             const authorsContainer = document.getElementById('szk-authors-cards-container');
             authorsContainer.innerHTML = '';
             sortedAuthors.slice(0, 4).forEach(aut => {
@@ -1692,7 +1843,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 authorsContainer.appendChild(card);
             });
 
-            // Update Charts
             const sortedDays = Object.keys(dailyMap).sort();
             szkChartDaily.data.labels = sortedDays;
             szkChartDaily.data.datasets[0].data = sortedDays.map(k => dailyMap[k]);
@@ -1716,7 +1866,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             szkChartDayOfWeek.data.datasets[0].data = dayOfWeekMap;
             szkChartDayOfWeek.update();
 
-            // Populate Table
             const tableBody = document.getElementById('szk-courses-table-body');
             tableBody.innerHTML = '';
             sortedCourses.forEach(c => {
@@ -1737,7 +1886,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         // ----------------------------------------------------
-        // DASHBOARD UPDATE LOGIC - TAB 3: MOSAK
+        // UPDATE LOGIC - TAB 3: MOSAK
         // ----------------------------------------------------
         function updateMosakDashboard() {
             const startDate = document.getElementById('mosStartDate').value;
@@ -1758,7 +1907,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 totalRev += t.k;
                 totalSales += t.s;
                 dailyMap[t.d] = (dailyMap[t.d] || 0) + t.k;
-
                 const dow = getDayOfWeekIndex(t.d);
                 dayOfWeekMap[dow]++;
             });
@@ -1778,7 +1926,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             document.getElementById('mos-best-day').innerText = bestDay;
             document.getElementById('mos-best-day-rev').innerText = formatPLN(bestDayRev);
 
-            // Update Combo Chart
             const sortedDays = Object.keys(dailyMap).sort();
             let cumSum = 0;
             const cumData = sortedDays.map(d => { cumSum += dailyMap[d]; return cumSum; });
@@ -1791,18 +1938,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             mosChartDayOfWeek.data.datasets[0].data = dayOfWeekMap;
             mosChartDayOfWeek.update();
 
-            // Populate Transactions Table
             const tableBody = document.getElementById('mos-table-body');
             tableBody.innerHTML = '';
             filtered.forEach(t => {
                 const tr = document.createElement('tr');
                 const nominalPrice = 149.00;
                 let discountText = 'Cena standardowa (149 zł)';
-                if (t.k < 130) {
-                    discountText = 'Rabat VIP (-20%)';
-                } else if (t.k < 140) {
-                    discountText = 'Kod promocyjny (-10%)';
-                }
+                if (t.k < 130) discountText = 'Rabat VIP (-20%)';
+                else if (t.k < 140) discountText = 'Kod promocyjny (-10%)';
 
                 tr.innerHTML = `
                     <td style="font-weight: 600;">${t.d}</td>
@@ -1817,6 +1960,156 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             });
         }
 
+        // ----------------------------------------------------
+        // UPDATE LOGIC - TAB 4: DE BARBARO (DOBRY TERAPEUTA)
+        // ----------------------------------------------------
+        function updateDebarbaroDashboard() {
+            const startDate = document.getElementById('barStartDate').value;
+            const endDate = document.getElementById('barEndDate').value;
+
+            const filtered = rawTransactions.filter(t => {
+                if (!t.isB) return false;
+                if (startDate && t.d < startDate) return false;
+                if (endDate && t.d > endDate) return false;
+                return true;
+            });
+
+            const allSzkoleniaRev = rawTransactions.filter(t => !t.isL).reduce((acc, curr) => acc + curr.k, 0);
+
+            let totalRev = 0, totalOrders = filtered.length, totalSales = 0;
+            const dailyMap = {}, monthlyMap = {};
+            const dayOfWeekMap = [0, 0, 0, 0, 0, 0, 0];
+            let price199 = 0, price149 = 0, price179 = 0, price99 = 0, priceOther = 0;
+
+            filtered.forEach(t => {
+                totalRev += t.k;
+                totalSales += t.s;
+                dailyMap[t.d] = (dailyMap[t.d] || 0) + t.k;
+                const mKey = t.d.substring(0, 7);
+                monthlyMap[mKey] = (monthlyMap[mKey] || 0) + t.k;
+
+                const dow = getDayOfWeekIndex(t.d);
+                dayOfWeekMap[dow] += t.k;
+
+                if (Math.abs(t.k - 199.00) < 1) price199 += t.k;
+                else if (Math.abs(t.k - 149.00) < 1) price149 += t.k;
+                else if (Math.abs(t.k - 179.10) < 1) price179 += t.k;
+                else if (Math.abs(t.k - 99.50) < 1) price99 += t.k;
+                else priceOther += t.k;
+            });
+
+            document.getElementById('bar-total-revenue').innerText = formatPLN(totalRev);
+            document.getElementById('bar-total-orders').innerText = totalOrders;
+            document.getElementById('bar-total-sales').innerText = totalSales;
+            document.getElementById('bar-aov').innerText = totalOrders > 0 ? formatPLN(totalRev / totalOrders) : '0,00 zł';
+            document.getElementById('bar-share-perc').innerText = allSzkoleniaRev > 0 ? ((totalRev / allSzkoleniaRev) * 100).toFixed(1) + '%' : '0%';
+
+            let bestDay = '-', bestDayRev = 0;
+            Object.keys(dailyMap).forEach(d => {
+                if (dailyMap[d] > bestDayRev) { bestDay = d; bestDayRev = dailyMap[d]; }
+            });
+            document.getElementById('bar-best-day').innerText = bestDay;
+            document.getElementById('bar-best-day-rev').innerText = formatPLN(bestDayRev);
+
+            const sortedDays = Object.keys(dailyMap).sort();
+            barChartDaily.data.labels = sortedDays;
+            barChartDaily.data.datasets[0].data = sortedDays.map(k => dailyMap[k]);
+            barChartDaily.update();
+
+            let cumSum = 0;
+            const cumData = sortedDays.map(d => { cumSum += dailyMap[d]; return cumSum; });
+            barChartCumulative.data.labels = sortedDays;
+            barChartCumulative.data.datasets[0].data = cumData;
+            barChartCumulative.update();
+
+            const sortedMonths = Object.keys(monthlyMap).sort();
+            barChartMonthly.data.labels = sortedMonths.map(formatMonth);
+            barChartMonthly.data.datasets[0].data = sortedMonths.map(k => monthlyMap[k]);
+            barChartMonthly.update();
+
+            barChartPriceDist.data.datasets[0].data = [price199, price149, price179, price99, priceOther];
+            barChartPriceDist.update();
+
+            barChartDayOfWeek.data.datasets[0].data = dayOfWeekMap;
+            barChartDayOfWeek.update();
+        }
+
+        // ----------------------------------------------------
+        // UPDATE LOGIC - TAB 5: WALKIEWICZ
+        // ----------------------------------------------------
+        function updateWalkiewiczDashboard() {
+            const startDate = document.getElementById('walStartDate').value;
+            const endDate = document.getElementById('walEndDate').value;
+
+            const filtered = rawTransactions.filter(t => {
+                if (!t.isW) return false;
+                if (startDate && t.d < startDate) return false;
+                if (endDate && t.d > endDate) return false;
+                return true;
+            });
+
+            let totalRev = 0, totalOrders = filtered.length, totalSales = 0;
+            let premiumOrdersCount = 0;
+            const dailyMap = {}, monthlyMap = {};
+            const dayOfWeekMap = [0, 0, 0, 0, 0, 0, 0];
+
+            let p299 = 0, p399 = 0, p254 = 0, p339 = 0, pOther = 0;
+
+            filtered.forEach(t => {
+                totalRev += t.k;
+                totalSales += t.s;
+                if (t.k >= 290) premiumOrdersCount++;
+
+                dailyMap[t.d] = (dailyMap[t.d] || 0) + t.k;
+                const mKey = t.d.substring(0, 7);
+                monthlyMap[mKey] = (monthlyMap[mKey] || 0) + t.k;
+
+                const dow = getDayOfWeekIndex(t.d);
+                dayOfWeekMap[dow] += t.k;
+
+                if (Math.abs(t.k - 299.25) < 2) p299 += t.k;
+                else if (Math.abs(t.k - 399.00) < 2) p399 += t.k;
+                else if (Math.abs(t.k - 254.25) < 2) p254 += t.k;
+                else if (Math.abs(t.k - 339.00) < 2) p339 += t.k;
+                else pOther += t.k;
+            });
+
+            document.getElementById('wal-total-revenue').innerText = formatPLN(totalRev);
+            document.getElementById('wal-total-orders').innerText = totalOrders;
+            document.getElementById('wal-total-sales').innerText = totalSales;
+            document.getElementById('wal-aov').innerText = totalOrders > 0 ? formatPLN(totalRev / totalOrders) : '0,00 zł';
+            document.getElementById('wal-premium-perc').innerText = totalOrders > 0 ? ((premiumOrdersCount / totalOrders) * 100).toFixed(1) + '%' : '0%';
+
+            let bestDay = '-', bestDayRev = 0;
+            Object.keys(dailyMap).forEach(d => {
+                if (dailyMap[d] > bestDayRev) { bestDay = d; bestDayRev = dailyMap[d]; }
+            });
+            document.getElementById('wal-best-day').innerText = bestDay;
+            document.getElementById('wal-best-day-rev').innerText = formatPLN(bestDayRev);
+
+            const sortedDays = Object.keys(dailyMap).sort();
+            walChartDaily.data.labels = sortedDays;
+            walChartDaily.data.datasets[0].data = sortedDays.map(k => dailyMap[k]);
+            walChartDaily.update();
+
+            let cumSum = 0;
+            const cumData = sortedDays.map(d => { cumSum += dailyMap[d]; return cumSum; });
+            walChartCumulative.data.labels = sortedDays;
+            walChartCumulative.data.datasets[0].data = cumData;
+            walChartCumulative.update();
+
+            const sortedMonths = Object.keys(monthlyMap).sort();
+            walChartMonthly.data.labels = sortedMonths.map(formatMonth);
+            walChartMonthly.data.datasets[0].data = sortedMonths.map(k => monthlyMap[k]);
+            walChartMonthly.update();
+
+            walChartPriceDist.data.datasets[0].data = [p299, p399, p254, p339, pOther];
+            walChartPriceDist.update();
+
+            walChartDayOfWeek.data.datasets[0].data = dayOfWeekMap;
+            walChartDayOfWeek.update();
+        }
+
 
         // ----------------------------------------------------
         // DATE RANGES & EVENT LISTENERS
@@ -1825,8 +2118,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         const minDateStr = allDates[0];
         const maxDateStr = allDates[allDates.length - 1];
 
-        // Init date inputs
-        ['lab', 'szk', 'mos'].forEach(prefix => {
+        ['lab', 'szk', 'mos', 'bar', 'wal'].forEach(prefix => {
             const sInput = document.getElementById(prefix + 'StartDate');
             const eInput = document.getElementById(prefix + 'EndDate');
             if (sInput && eInput) {
@@ -1835,7 +2127,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             }
         });
 
-        // Setup date buttons
         function setupQuickButtons(prefix, updateFn) {
             const sInput = document.getElementById(prefix + 'StartDate');
             const eInput = document.getElementById(prefix + 'EndDate');
@@ -1844,7 +2135,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 const btn = document.getElementById(`${prefix}-btn-${days}`);
                 if (btn) {
                     btn.addEventListener('click', (e) => {
-                        document.querySelectorAll(`#pane-${prefix === 'lab' ? 'labirynt' : prefix === 'szk' ? 'szkolenia' : 'mosak'} .filter-btn`).forEach(b => b.classList.remove('active'));
+                        const paneId = prefix === 'lab' ? 'labirynt' : prefix === 'szk' ? 'szkolenia' : prefix === 'mos' ? 'mosak' : prefix === 'bar' ? 'debarbaro' : 'walkiewicz';
+                        document.querySelectorAll(`#pane-${paneId} .filter-btn`).forEach(b => b.classList.remove('active'));
                         e.target.classList.add('active');
 
                         let end = new Date(maxDateStr + 'T00:00:00');
@@ -1860,7 +2152,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             const btnAll = document.getElementById(`${prefix}-btn-all`);
             if (btnAll) {
                 btnAll.addEventListener('click', (e) => {
-                    document.querySelectorAll(`#pane-${prefix === 'lab' ? 'labirynt' : prefix === 'szk' ? 'szkolenia' : 'mosak'} .filter-btn`).forEach(b => b.classList.remove('active'));
+                    const paneId = prefix === 'lab' ? 'labirynt' : prefix === 'szk' ? 'szkolenia' : prefix === 'mos' ? 'mosak' : prefix === 'bar' ? 'debarbaro' : 'walkiewicz';
+                    document.querySelectorAll(`#pane-${paneId} .filter-btn`).forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
                     sInput.value = minDateStr;
                     eInput.value = maxDateStr;
@@ -1875,6 +2168,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         setupQuickButtons('lab', updateLabiryntDashboard);
         setupQuickButtons('szk', updateSzkoleniaDashboard);
         setupQuickButtons('mos', updateMosakDashboard);
+        setupQuickButtons('bar', updateDebarbaroDashboard);
+        setupQuickButtons('wal', updateWalkiewiczDashboard);
 
         document.getElementById('labVariantSelect').addEventListener('change', updateLabiryntDashboard);
         document.getElementById('szkAuthorSelect').addEventListener('change', updateSzkoleniaDashboard);
@@ -1890,19 +2185,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
             if (tabId === 'labirynt') {
                 updateLabiryntDashboard();
-                setTimeout(() => {
-                    [labChartDaily, labChartCumulative, labChartMonthly, labChartWeekly, labChartDayOfWeek].forEach(c => c && c.resize());
-                }, 50);
+                setTimeout(() => { [labChartDaily, labChartCumulative, labChartMonthly, labChartWeekly, labChartDayOfWeek].forEach(c => c && c.resize()); }, 50);
             } else if (tabId === 'szkolenia') {
                 updateSzkoleniaDashboard();
-                setTimeout(() => {
-                    [szkChartDaily, szkChartCumulative, szkChartAuthors, szkChartTopCourses, szkChartDayOfWeek].forEach(c => c && c.resize());
-                }, 50);
+                setTimeout(() => { [szkChartDaily, szkChartCumulative, szkChartAuthors, szkChartTopCourses, szkChartDayOfWeek].forEach(c => c && c.resize()); }, 50);
             } else if (tabId === 'mosak') {
                 updateMosakDashboard();
-                setTimeout(() => {
-                    [mosChartDaily, mosChartDayOfWeek].forEach(c => c && c.resize());
-                }, 50);
+                setTimeout(() => { [mosChartDaily, mosChartDayOfWeek].forEach(c => c && c.resize()); }, 50);
+            } else if (tabId === 'debarbaro') {
+                updateDebarbaroDashboard();
+                setTimeout(() => { [barChartDaily, barChartCumulative, barChartMonthly, barChartPriceDist, barChartDayOfWeek].forEach(c => c && c.resize()); }, 50);
+            } else if (tabId === 'walkiewicz') {
+                updateWalkiewiczDashboard();
+                setTimeout(() => { [walChartDaily, walChartCumulative, walChartMonthly, walChartPriceDist, walChartDayOfWeek].forEach(c => c && c.resize()); }, 50);
             }
         }
 
@@ -1910,10 +2205,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             btn.addEventListener('click', () => switchTab(btn.dataset.tab));
         });
 
-        // Initialize default tab
+        // Initialize default tabs
         updateLabiryntDashboard();
         updateSzkoleniaDashboard();
         updateMosakDashboard();
+        updateDebarbaroDashboard();
+        updateWalkiewiczDashboard();
     </script>
 </body>
 </html>
@@ -1940,7 +2237,7 @@ try:
         
         commit_check = subprocess.run(['git', 'status', '--porcelain'], capture_output=True, text=True)
         if commit_check.stdout.strip():
-            commit_msg = f"Add tabs for overall trainings analysis and Piotr Mosak course - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+            commit_msg = f"Add dedicated tabs for Prof. de Barbaro (Dobry Terapeuta) and Jacek Walkiewicz (Pelna MOC) - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
             subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
             print("Zatwierdzono nowe zmiany w Git.")
             
